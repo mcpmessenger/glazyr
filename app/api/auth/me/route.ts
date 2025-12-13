@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server"
-import { store } from "@/lib/server/store"
 import { json, optionsResponse } from "@/lib/server/http"
+import { verifySessionToken } from "@/lib/server/session"
 
 export const runtime = "nodejs"
 
@@ -9,8 +9,8 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const sessionId = req.cookies.get("glazyr_session")?.value ?? null
-  const session = store.getSession(sessionId)
+  const token = req.cookies.get("glazyr_session")?.value ?? null
+  const session = verifySessionToken(token)
 
   if (!session) return json(req, null)
 

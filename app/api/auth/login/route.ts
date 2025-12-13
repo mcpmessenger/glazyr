@@ -1,8 +1,8 @@
 import type { NextRequest } from "next/server"
 import { ZodError } from "zod"
 import { LoginRequestSchema } from "@/lib/control-plane-schemas"
-import { store } from "@/lib/server/store"
 import { errorJson, json, optionsResponse } from "@/lib/server/http"
+import { createSessionToken } from "@/lib/server/session"
 
 export const runtime = "nodejs"
 
@@ -22,14 +22,18 @@ export async function POST(req: NextRequest) {
     const { email } = LoginRequestSchema.parse(body)
 
     // Dev-only: accept any email/password.
-    const sessionId = store.createSession(email, false)
+    const token = createSessionToken({ email, isGuest: false })
 
     const res = json(req, { email, isGuest: false })
-    res.cookies.set("glazyr_session", sessionId, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-    })
+    if (token) {
+      res.cookies.set("glazyr_session", token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+      })
+    }
     return res
   } catch (e) {
     if (e instanceof ZodError) return errorJson(req, "Invalid login request", 422)

@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { GLAZYR_API_KEY_HEADER } from "@/lib/api/contract"
-import { store } from "@/lib/server/store"
+import { verifySessionToken } from "@/lib/server/session"
 
 export function corsHeaders(req?: NextRequest): Record<string, string> {
   const origin = req?.headers.get("origin")
@@ -57,8 +57,8 @@ export function requireApiKeyOrSession(req: NextRequest): NextResponse | null {
   const required = process.env.GLAZYR_API_KEY
   if (!required) return null
 
-  const sessionId = req.cookies.get("glazyr_session")?.value ?? null
-  const session = store.getSession(sessionId)
+  const token = req.cookies.get("glazyr_session")?.value ?? null
+  const session = verifySessionToken(token)
   if (session) return null
 
   return requireApiKey(req)

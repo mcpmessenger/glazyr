@@ -13,7 +13,7 @@ export default function Home() {
         <header className="flex items-center justify-between mb-12">
           <div className="flex items-start gap-4">
             <div className="glass-subtle rounded-2xl p-2 border border-border/40">
-              <Image src="/icon.svg" alt="Glazyr eye mark" width={56} height={56} priority className="rounded-xl" />
+              <Image src="/glazyr-logo.png" alt="Glazyr eye mark" width={56} height={56} priority className="rounded-xl" />
             </div>
             <div>
             <p className="text-sm text-muted-foreground">Glazyr</p>

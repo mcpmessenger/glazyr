@@ -24,6 +24,11 @@ export default function PrivacySecurityPage() {
               internal traces.
             </p>
             <p>
+              Safety enforcement happens in the extension/runtime. The control plane can broadcast policy (agent mode,
+              allowed domains, disallowed actions, budgets, kill switch) and shows enforcement signals reported back by
+              the extension.
+            </p>
+            <p>
               Use “Safety & permissions” to set allowed domains, disallowed actions, human-in-the-loop thresholds, and
               budgets.
             </p>

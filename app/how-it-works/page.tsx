@@ -23,9 +23,24 @@ export default function HowItWorksPage() {
               The website is mission control: it configures behavior, defines safety boundaries, and displays outcomes and
               summaries. It does not execute automation.
             </p>
+            <p>Execution and orchestration live outside the control plane:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>
+                <span className="text-foreground font-medium">Browser extension</span>: senses the page (context/captures),
+                enforces policy (allowed domains, kill switch, mode), and performs browser actions.
+              </li>
+              <li>
+                <span className="text-foreground font-medium">Orchestrator / runtime</span>: plans and coordinates tasks
+                and applies safety enforcement beyond the UI.
+              </li>
+              <li>
+                <span className="text-foreground font-medium">Control plane (this site)</span>: config + monitoring only
+                (no chat UI, no task execution).
+              </li>
+            </ul>
             <p>
-              Execution is owned by the orchestrator + extension. This separation keeps the UI calm, predictable, and
-              safe.
+              The separation keeps the UI calm and predictable while execution stays contained and stoppable (kill
+              switch).
             </p>
           </CardContent>
         </Card>

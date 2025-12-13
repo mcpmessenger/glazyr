@@ -22,6 +22,10 @@ export default function InstallExtensionPage() {
             <p>
               Install the Glazyr browser extension, then return to the dashboard to confirm connection and permissions.
             </p>
+            <p>
+              The extension is the execution surface: it can enforce the safety policy you set here (allowed domains, agent mode, kill switch)
+              and reports status back to the control plane.
+            </p>
             <ol className="list-decimal pl-5 space-y-2">
               <li>Open your browser’s extension manager.</li>
               <li>Install / load the Glazyr extension.</li>

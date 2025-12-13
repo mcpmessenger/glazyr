@@ -38,7 +38,11 @@ export default function PrivacyPolicyPage() {
                 </li>
                 <li>
                   The Glazyr website ("Control Plane") is <span className="text-foreground font-medium">mission control</span>: it stores
-                  configuration and shows high-level outcomes.
+                  configuration and shows high-level outcomes. It does not orchestrate or execute tasks.
+                </li>
+                <li>
+                  Orchestration/execution occurs in the <span className="text-foreground font-medium">extension + runtime</span>, where safety
+                  policy is enforced (allowed domains, kill switch, mode).
                 </li>
                 <li>
                   We aim to minimize collection and keep users in control. You can engage an <span className="text-foreground font-medium">Emergency Stop</span>

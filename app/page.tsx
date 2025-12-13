@@ -17,7 +17,8 @@ export default function Home() {
             <p className="text-sm text-muted-foreground">Glazyr</p>
             <h1 className="text-4xl md:text-5xl font-bold text-gradient leading-tight">Web Control Plane</h1>
             <p className="mt-3 text-muted-foreground max-w-2xl leading-relaxed">
-              Configure agent behavior, safety boundaries, and view outcomes. This site does not execute actions.
+              Configure agent behavior, safety boundaries, and view outcomes. Orchestration/execution happens in the
+              extension + runtime; this site does not execute actions.
             </p>
             </div>
           </div>

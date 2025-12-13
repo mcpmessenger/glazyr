@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server"
 import { ZodError } from "zod"
 import { store } from "@/lib/server/store"
-import { errorJson, json, optionsResponse, requireApiKey } from "@/lib/server/http"
+import { errorJson, json, optionsResponse, requireApiKeyOrSession } from "@/lib/server/http"
 
 export const runtime = "nodejs"
 
@@ -10,14 +10,14 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const unauthorized = requireApiKey(req)
+  const unauthorized = requireApiKeyOrSession(req)
   if (unauthorized) return unauthorized
 
   return json(req, store.getConfig())
 }
 
 export async function PUT(req: NextRequest) {
-  const unauthorized = requireApiKey(req)
+  const unauthorized = requireApiKeyOrSession(req)
   if (unauthorized) return unauthorized
 
   let body: unknown

@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { GLAZYR_API_KEY_HEADER } from "@/lib/api/contract"
+import { store } from "@/lib/server/store"
 
 export function corsHeaders(req?: NextRequest): Record<string, string> {
   const origin = req?.headers.get("origin")
@@ -43,4 +44,22 @@ export function requireApiKey(req: NextRequest): NextResponse | null {
   }
 
   return null
+}
+
+/**
+ * Allows either:
+ * - a valid dev session cookie (browser control-plane), OR
+ * - the configured API key (extension/automation).
+ *
+ * If `GLAZYR_API_KEY` is not set, this is always permissive.
+ */
+export function requireApiKeyOrSession(req: NextRequest): NextResponse | null {
+  const required = process.env.GLAZYR_API_KEY
+  if (!required) return null
+
+  const sessionId = req.cookies.get("glazyr_session")?.value ?? null
+  const session = store.getSession(sessionId)
+  if (session) return null
+
+  return requireApiKey(req)
 }

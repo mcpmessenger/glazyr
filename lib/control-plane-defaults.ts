@@ -17,5 +17,9 @@ export const DEFAULT_EXTENSION_STATUS: ExtensionStatus = {
   browserType: "chrome",
   permissionsGranted: [],
   lastHeartbeat: null,
+  policyEnforced: false,
+  killSwitchEngaged: false,
+  allowedDomainsCount: 0,
+  agentMode: "observe",
 }
 

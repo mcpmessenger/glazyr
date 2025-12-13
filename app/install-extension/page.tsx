@@ -35,6 +35,9 @@ export default function InstallExtensionPage() {
               <Button asChild variant="outline" className="bg-transparent">
                 <Link href="/dashboard/extension-status">Extension status</Link>
               </Button>
+              <Button asChild variant="outline" className="bg-transparent">
+                <Link href="/privacy-policy">Privacy policy</Link>
+              </Button>
             </div>
           </CardContent>
         </Card>

@@ -1,176 +1,123 @@
 # Glazyr.com Web Control Plane Development Instructions
 
-This document is the practical development guide for the **Glazyr Web Control Plane** (the `glazyr-main` Next.js app in this repo).
+This document provides comprehensive development instructions for the **Glazyr Web Control Plane** (the Glazyr.com website), based on the analysis of the `mcpmessenger/glazyr` repository and its architectural relationship with the `mcpmessenger/glazyr-chrome-extension`.
 
-The Web Control Plane is **Mission Control**:
-- Configure agent behavior and safety boundaries.
-- Review high-level outcomes (summaries only).
-- Provide a prominent **Emergency Stop**.
+## 1. Project Scope and Architecture
 
-It is **not** the “cockpit”:
-- No chat UI.
-- No execution environment.
-- No screenshots/traces/reasoning display.
+The Glazyr Web Control Plane is explicitly defined as the **Mission Control** for the Glazyr ecosystem, not the cockpit. Its primary function is to provide a safety-first control surface for the agent, focusing on configuration, safety boundaries, and outcome review.
 
----
+### 1.1. Technology Stack
 
-## 1. Project scope and architecture
+The Glazyr Web Control Plane is a modern, full-stack web application built with the following technologies:
 
-### 1.1 Technology stack (as implemented in this repo)
+| Component | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Framework** | Next.js (v16.0.10) | React framework for server-side rendering, routing, and API routes. |
+| **Language** | TypeScript (v5) | Type-safe JavaScript for improved code quality and maintainability. |
+| **Styling** | Tailwind CSS (v4.1.9) | Utility-first CSS framework for rapid UI development. |
+| **UI Components** | Radix UI / Shadcn/ui | Headless component library for accessible and customizable UI primitives. |
+| **State/Data** | Next.js route handlers + in-memory dev store | The control plane persists config/status/tasks via `app/api/**/route.ts` (dev store today; replace with DB/KV for production). |
 
-- **Framework**: Next.js `16.0.10` (App Router)
-- **UI**: React `19.2.0`
-- **Language**: TypeScript `^5`
-- **Styling**: Tailwind CSS `^4.1.9` (+ `tailwindcss-animate`)
-- **UI primitives**: Radix UI + shadcn-style components in `components/ui/`
+### 1.2. Separation of Responsibility
 
-### 1.2 Separation of responsibility (safety-critical)
+The architecture is strictly separated to ensure safety and stability. The Web Control Plane is designed to be a configuration and monitoring surface, **never** an execution environment.
 
-- **Web Control Plane (this repo)**: Auth entry (demo/guest today), configuration UI, safety boundaries, task summaries, emergency stop.
-- **Browser Extension (`glazyr-chrome-extension`)**: sensing/acting (clicks/typing), permissions, heartbeat, cockpit UI.
-- **Orchestrator/Runtime**: execution + safety enforcement + tool gateway.
+| Component | Responsibility | Status Display |
+| :--- | :--- | :--- |
+| **Web Control Plane** (`glazyr`) | Authentication, Agent Configuration, Safety Boundaries, Task Summaries, Emergency Stop. | Calm UI, no real-time traces or screenshots. |
+| **Browser Extension** (`glazyr-chrome-extension`) | Sensing (page context, screenshot), Acting (clicks, typing), Heartbeat, User Chat UI (the "cockpit"). | Interactive, real-time status (STT, Capture, Agent progress). |
+| **Orchestrator/Runtime** | Execution, Safety Enforcement, Tool Gateway, API services. | Headless, provides structured data to the Web Control Plane APIs. |
 
-**Rule:** the Web Control Plane stores **intent** and displays **outcomes**. Enforcement and action stay outside the UI.
+### 1.3. Key Routes and Functionality
 
-### 1.3 Routes (App Router)
+The application is divided into Public and Dashboard routes:
 
-Public routes live under `app/`:
-- `/` → `app/page.tsx`
-- `/how-it-works` → `app/how-it-works/page.tsx`
-- `/privacy-security` → `app/privacy-security/page.tsx`
-- `/install-extension` → `app/install-extension/page.tsx`
-- `/login` → `app/login/page.tsx`
+| Route Category | Example Routes | Core Functionality |
+| :--- | :--- | :--- |
+| **Public** | `/`, `/how-it-works`, `/privacy-security`, `/install-extension`, `/login` | Marketing, documentation, and authentication entry points. |
+| **Dashboard** | `/dashboard`, `/dashboard/agent-modes`, `/dashboard/safety-permissions`, `/dashboard/task-history` | Configuration of agent behavior, setting safety thresholds, and reviewing task outcomes. **The `/dashboard/safety-permissions` route is critical.** |
 
-Dashboard routes live under `app/dashboard/`:
-- `/dashboard` → `app/dashboard/page.tsx`
-- `/dashboard/agent-modes` → `app/dashboard/agent-modes/page.tsx`
-- `/dashboard/safety-permissions` → `app/dashboard/safety-permissions/page.tsx` (**critical**)
-- `/dashboard/task-history` → `app/dashboard/task-history/page.tsx`
-- `/dashboard/extension-status` → `app/dashboard/extension-status/page.tsx`
-- `/dashboard/account` → `app/dashboard/account/page.tsx`
+## 2. Development Environment Setup
 
----
+### 2.1. Prerequisites
 
-## 2. Development environment setup
+Ensure you have the following installed:
 
-### 2.1 Prerequisites
+1.  **Node.js**: Version 20 or higher (recommended by Next.js).
+2.  **npm/pnpm**: The project uses `package-lock.json` and `pnpm-lock.yaml`, indicating both `npm` and `pnpm` are supported. `npm` is used in the quickstart.
+3.  **Git**: For cloning the repository.
 
-- **Node.js**: 20+
-- **npm** (or pnpm)
+### 2.2. Local Setup
 
-### 2.2 Local setup
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/mcpmessenger/glazyr glazyr.com
+    cd glazyr.com
+    ```
 
-Install and run:
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+    *Note: If using `pnpm`, run `pnpm install` instead.*
 
-```bash
-npm install
-npm run dev
-```
+3.  **Start the development server:**
+    ```bash
+    npm run dev
+    ```
 
-Then open:
-- `http://localhost:3000/`
-- `http://localhost:3000/dashboard` (includes **guest mode**)
+4.  **Access the application:**
+    The application will be available at `http://localhost:3000/`.
+    The dashboard, which includes a **guest mode** for immediate access, is at `http://localhost:3000/dashboard`.
 
----
+## 3. Core Development Tasks
 
-## 3. Current state (what is placeholder today)
+The control plane is wired for API-backed persistence via Next.js route handlers (`app/api/**/route.ts`). For production, replace the in-memory dev store with a real persistence layer (DB/KV) and real auth.
 
-This app intentionally has **no Next.js API routes** in this repo (there are no `app/**/route.ts` files).
+### 3.1. API Integration (Next Steps)
 
-Today, the Control Plane uses `localStorage` as a demo persistence layer:
+The Web Control Plane must be wired to the following APIs, which are expected to be provided by the Orchestrator/Runtime team:
 
-- **Config**: key `glazyr-control-plane-config`
-  - Used by `app/dashboard/page.tsx`, `app/dashboard/safety-permissions/page.tsx`, and other dashboard pages via `hooks/use-local-storage-state.ts`.
-- **Extension status** (placeholder monitoring): key `glazyr-extension-status`
-- **Task summaries**: key `glazyr-task-summaries`
-- **Theme**: key `glazyr-theme` via `hooks/use-theme.ts`
+| API Service | Purpose | Current Implementation |
+| :--- | :--- | :--- |
+| **Auth service** | User authentication and session management. | Dev cookie session (`/api/auth/*`). |
+| **Config API** | Read/write `ControlPlaneConfig` (modes, budgets, domains, etc.). | `/api/control-plane/config` |
+| **Task Summary API** | Read/write `TaskSummary[]` (summaries only). | `/api/tasks` |
+| **Extension Status API** | Read/write `ExtensionStatus` (heartbeat/permissions/enforcement). | `/api/extension/status` |
+| **Kill switch API** | Engage/disengage emergency stop. | `/api/killswitch` |
 
-The main persistence hook is:
-- `hooks/use-local-storage-state.ts`
+**Development Instruction:**
+1. Keep the web UI as “mission control” (config + summaries + stop), not execution.
+2. Validate all writes conservatively (never silently expand permissions).
+3. Treat the kill switch as safety-critical and high priority.
 
-Defaults and types live in:
-- `lib/control-plane-defaults.ts`
-- `lib/control-plane-types.ts`
+### 3.2. Safety and Permissions
 
----
+The `/dashboard/safety-permissions` route is a **non-negotiable** critical component.
 
-## 4. Core development tasks
+**Development Instruction:**
+1.  Implement the UI for configuring safety boundaries, such as:
+    *   Agent mode selection (Observe / Assist / Automate).
+    *   Budget limits and human-in-the-loop thresholds.
+    *   Allowed/disallowed domains and actions.
+2.  Ensure the **Emergency Stop** button is prominently displayed on the `/dashboard` overview and is wired to a dedicated, high-priority endpoint in the Orchestrator/Runtime API. This endpoint must be designed for immediate, non-reversible action.
 
-### 4.1 Replace localStorage with real APIs (primary next step)
+### 3.3. Deployment
 
-Expected upstream services (owned by Orchestrator/Runtime team):
-- **Auth service**: session + identity
-- **Config API**: read/write `ControlPlaneConfig`
-- **Task Summary API**: list recent `TaskSummary` items
-- **Extension Status API**: read-only heartbeat/permissions status
+This repo now includes route handlers under `app/api/**/route.ts`, so **static export** is not compatible. Deploy to a platform that supports Next.js server functions (e.g., Vercel, Amplify, or equivalent).
 
-Implementation guidance for this repo:
-- Create a small API client layer (e.g. `lib/api/*`) that wraps `fetch` and centralizes:
-  - base URL / headers / credentials
-  - error handling and retry policy
-  - response validation (Zod is already a dependency)
-- Replace direct `useLocalStorageState(...)` usage for config/status/history with a single “store” abstraction:
-  - **Local adapter** (current behavior) for demo/guest mode
-  - **Remote adapter** (API-backed) for authenticated mode
-- Keep the UI safety posture:
-  - Any write to Config API must be validated and conservative (never silently expand permissions).
+## 4. Relationship with the Chrome Extension
 
-### 4.2 Safety & permissions page (non-negotiable)
+The Web Control Plane and the Chrome Extension serve distinct purposes and should be developed with their separation of concerns in mind.
 
-The `/dashboard/safety-permissions` route (`app/dashboard/safety-permissions/page.tsx`) must remain the primary surface for:
-- Allowed domains
-- Disallowed actions
-- Human-in-the-loop threshold
-- Runtime + action budgets
+| Feature | Web Control Plane (`glazyr`) | Chrome Extension (`glazyr-chrome-extension`) |
+| :--- | :--- | :--- |
+| **User Interface** | Mission Control (Configuration, History) | Cockpit (Chat UI, Real-time Status) |
+| **Data Source** | Auth, Config, Task Summary APIs | Page Context, Voice Input, Framed Screenshot |
+| **Action** | Configure, Review, Emergency Stop | Sense, Act, Communicate with Agent Backend |
 
-**Important:** the UI stores policy; enforcement must be implemented in the orchestrator/extension.
-
-### 4.3 Emergency stop
-
-The “Emergency stop” in `app/dashboard/page.tsx` is currently a local kill-switch toggle.
-
-When wiring to a runtime:
-- Add a dedicated, high-priority endpoint (e.g. `POST /killswitch/engage`) designed for immediate effect.
-- Treat it as irreversible in the short term (resume should be an explicit, audited action).
+**Development Instruction:**
+1.  The Web Control Plane should provide a clear, up-to-date link and instructions on the `/install-extension` page, referencing the `mcpmessenger/glazyr-chrome-extension` repository.
+2.  Implement the **Extension Status** UI on the `/dashboard` to show connection/permissions/heartbeat, which will be wired to a dedicated status API endpoint. This is a monitoring function, not a control function.
 
 ---
-
-## 5. Deployment (Amazon S3)
-
-### 5.1 Static export to S3 (works for this repo today)
-
-Because this repo currently contains only static App Router pages and client-side behavior (no server route handlers), it can be deployed as a static export, with the Control Plane calling external APIs from the browser.
-
-Recommended configuration:
-- In `next.config.mjs`:
-  - set `output: 'export'`
-  - set `trailingSlash: true` (simplifies S3 static hosting for nested routes)
-
-Build/export:
-
-```bash
-npm run build
-```
-
-Upload the generated output directory to S3 and serve via S3 static website hosting (ideally behind CloudFront).
-
-### 5.2 When you need serverless/SSR
-
-If you later add any of the following, static export may no longer be sufficient:
-- Next.js route handlers (`app/**/route.ts`)
-- server-side auth/session enforcement
-- server-only integrations that must not run in the browser
-
-In that case, deploy to a platform that supports Next.js SSR/server functions (e.g. Vercel, AWS Amplify, or Lambda@Edge/CloudFront setups).
-
----
-
-## 6. Relationship with the Chrome extension
-
-The Web Control Plane and the extension should remain separate:
-- The extension provides sensing/acting and real-time cockpit UX.
-- This web app provides configuration, monitoring summaries, and safety controls.
-
-Development tasks:
-- Keep `/install-extension` up to date with install instructions and the extension repo reference.
-- Implement “Extension status” in the dashboard as **monitoring only** (no action controls), wired to the status API when available.

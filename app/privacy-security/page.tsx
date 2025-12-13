@@ -27,6 +27,13 @@ export default function PrivacySecurityPage() {
               Use “Safety & permissions” to set allowed domains, disallowed actions, human-in-the-loop thresholds, and
               budgets.
             </p>
+            <p>
+              Looking for the Chrome extension privacy policy URL? See{" "}
+              <Link className="underline text-foreground" href="/privacy-policy">
+                Privacy Policy (extension)
+              </Link>
+              .
+            </p>
           </CardContent>
         </Card>
       </div>

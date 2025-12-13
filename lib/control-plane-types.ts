@@ -29,5 +29,13 @@ export interface ExtensionStatus {
   browserType: "chrome" | "edge" | "brave" | "other"
   permissionsGranted: string[]
   lastHeartbeat: number | null
+  /** Whether the extension is enforcing control-plane safety config (best-effort signal). */
+  policyEnforced: boolean
+  /** Whether the extension currently considers the kill switch engaged. */
+  killSwitchEngaged: boolean
+  /** Count of allowed domains currently loaded in the extension policy. */
+  allowedDomainsCount: number
+  /** Extension’s last known agent mode (from latest config). */
+  agentMode: AgentMode
 }
 

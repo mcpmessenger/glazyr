@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useExtensionBridge } from "@/hooks/use-extension-bridge"
 import { useLocalStorageState } from "@/hooks/use-local-storage-state"
 import { DEFAULT_CONTROL_PLANE_CONFIG } from "@/lib/control-plane-defaults"
 import type { AgentMode, ControlPlaneConfig } from "@/lib/control-plane-types"
@@ -13,6 +14,7 @@ const modes: { mode: AgentMode; title: string; description: string }[] = [
 ]
 
 export default function AgentModesPage() {
+  const bridge = useExtensionBridge()
   const [config, setConfig, mounted] = useLocalStorageState<ControlPlaneConfig>(
     "glazyr-control-plane-config",
     DEFAULT_CONTROL_PLANE_CONFIG,
@@ -39,10 +41,11 @@ export default function AgentModesPage() {
                   className="w-full"
                   variant={selected ? "secondary" : "default"}
                   onClick={() =>
-                    setConfig((prev) => ({
-                      ...prev,
-                      agentMode: m.mode,
-                    }))
+                    setConfig((prev) => {
+                      const next = { ...prev, agentMode: m.mode }
+                      bridge.sendConfigUpdate(next)
+                      return next
+                    })
                   }
                   disabled={!mounted || config.killSwitchEngaged}
                 >

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useExtensionBridge } from "@/hooks/use-extension-bridge"
 import { useLocalStorageState } from "@/hooks/use-local-storage-state"
 import { DEFAULT_CONTROL_PLANE_CONFIG } from "@/lib/control-plane-defaults"
 import type { ControlPlaneConfig } from "@/lib/control-plane-types"
@@ -15,6 +16,7 @@ function splitLines(text: string): string[] {
 }
 
 export default function SafetyPermissionsPage() {
+  const bridge = useExtensionBridge()
   const [config, setConfig, mounted] = useLocalStorageState<ControlPlaneConfig>(
     "glazyr-control-plane-config",
     DEFAULT_CONTROL_PLANE_CONFIG,
@@ -50,10 +52,14 @@ export default function SafetyPermissionsPage() {
             />
             <Button
               onClick={() =>
-                setConfig((prev) => ({
-                  ...prev,
-                  safety: { ...prev.safety, allowedDomains: splitLines(domainsDraft) },
-                }))
+                setConfig((prev) => {
+                  const next: ControlPlaneConfig = {
+                    ...prev,
+                    safety: { ...prev.safety, allowedDomains: splitLines(domainsDraft) },
+                  }
+                  bridge.sendConfigUpdate(next)
+                  return next
+                })
               }
               disabled={!canApply}
             >
@@ -76,10 +82,14 @@ export default function SafetyPermissionsPage() {
             />
             <Button
               onClick={() =>
-                setConfig((prev) => ({
-                  ...prev,
-                  safety: { ...prev.safety, disallowedActions: splitLines(disallowedDraft) },
-                }))
+                setConfig((prev) => {
+                  const next: ControlPlaneConfig = {
+                    ...prev,
+                    safety: { ...prev.safety, disallowedActions: splitLines(disallowedDraft) },
+                  }
+                  bridge.sendConfigUpdate(next)
+                  return next
+                })
               }
               disabled={!canApply}
             >
@@ -100,13 +110,17 @@ export default function SafetyPermissionsPage() {
               className="w-full rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
               value={mounted ? config.safety.humanInLoopThreshold : "high_risk_only"}
               onChange={(e) =>
-                setConfig((prev) => ({
-                  ...prev,
-                  safety: {
-                    ...prev.safety,
-                    humanInLoopThreshold: e.target.value as ControlPlaneConfig["safety"]["humanInLoopThreshold"],
-                  },
-                }))
+                setConfig((prev) => {
+                  const next: ControlPlaneConfig = {
+                    ...prev,
+                    safety: {
+                      ...prev.safety,
+                      humanInLoopThreshold: e.target.value as ControlPlaneConfig["safety"]["humanInLoopThreshold"],
+                    },
+                  }
+                  bridge.sendConfigUpdate(next)
+                  return next
+                })
               }
               disabled={!canApply}
             >
@@ -129,10 +143,14 @@ export default function SafetyPermissionsPage() {
               min={0}
               value={mounted ? config.safety.runtimeBudgetMinutes : 0}
               onChange={(e) =>
-                setConfig((prev) => ({
-                  ...prev,
-                  safety: { ...prev.safety, runtimeBudgetMinutes: Math.max(0, Number(e.target.value || 0)) },
-                }))
+                setConfig((prev) => {
+                  const next: ControlPlaneConfig = {
+                    ...prev,
+                    safety: { ...prev.safety, runtimeBudgetMinutes: Math.max(0, Number(e.target.value || 0)) },
+                  }
+                  bridge.sendConfigUpdate(next)
+                  return next
+                })
               }
               disabled={!canApply}
             />
@@ -151,10 +169,14 @@ export default function SafetyPermissionsPage() {
               min={0}
               value={mounted ? config.safety.actionBudget : 0}
               onChange={(e) =>
-                setConfig((prev) => ({
-                  ...prev,
-                  safety: { ...prev.safety, actionBudget: Math.max(0, Number(e.target.value || 0)) },
-                }))
+                setConfig((prev) => {
+                  const next: ControlPlaneConfig = {
+                    ...prev,
+                    safety: { ...prev.safety, actionBudget: Math.max(0, Number(e.target.value || 0)) },
+                  }
+                  bridge.sendConfigUpdate(next)
+                  return next
+                })
               }
               disabled={!canApply}
             />

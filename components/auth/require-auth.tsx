@@ -38,6 +38,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
             <Button
               variant="secondary"
               onClick={() => setAuth({ email: "guest@local", isGuest: true })}
+              aria-label="Continue as guest"
             >
               Continue as guest
             </Button>

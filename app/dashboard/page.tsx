@@ -3,6 +3,7 @@
 import { useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useExtensionBridge } from "@/hooks/use-extension-bridge"
 import { useLocalStorageState } from "@/hooks/use-local-storage-state"
 import { DEFAULT_CONTROL_PLANE_CONFIG, DEFAULT_EXTENSION_STATUS } from "@/lib/control-plane-defaults"
 import type { ControlPlaneConfig, ExtensionStatus, TaskSummary } from "@/lib/control-plane-types"
@@ -12,6 +13,7 @@ function formatTime(ts: number) {
 }
 
 export default function DashboardOverviewPage() {
+  const bridge = useExtensionBridge()
   const [config, setConfig, mountedConfig] = useLocalStorageState<ControlPlaneConfig>(
     "glazyr-control-plane-config",
     DEFAULT_CONTROL_PLANE_CONFIG,
@@ -22,6 +24,7 @@ export default function DashboardOverviewPage() {
   const lastTask = useMemo(() => (tasks.length ? tasks.slice().sort((a, b) => b.timestamp - a.timestamp)[0] : null), [tasks])
 
   const ready = mountedConfig && mountedExt && mountedTasks
+  const extDisplay = bridge.connected ? bridge.status : ext
 
   return (
     <div className="space-y-6">
@@ -50,20 +53,24 @@ export default function DashboardOverviewPage() {
         <Card className="glass">
           <CardHeader>
             <CardTitle>Extension status</CardTitle>
-            <CardDescription>Connection and last heartbeat.</CardDescription>
+            <CardDescription>Connection and last heartbeat (live when extension is present).</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div>
               <span className="text-muted-foreground">Connection:</span>{" "}
-              <span className="font-medium text-foreground">{ready ? (ext.connected ? "Connected" : "Disconnected") : "…"}</span>
+              <span className="font-medium text-foreground">
+                {!ready ? "…" : extDisplay.connected ? "Connected" : "Disconnected"}
+              </span>
             </div>
             <div>
               <span className="text-muted-foreground">Browser:</span>{" "}
-              <span className="font-medium text-foreground">{ready ? ext.browserType : "…"}</span>
+              <span className="font-medium text-foreground">{ready ? extDisplay.browserType : "…"}</span>
             </div>
             <div>
               <span className="text-muted-foreground">Last heartbeat:</span>{" "}
-              <span className="font-medium text-foreground">{ready ? (ext.lastHeartbeat ? formatTime(ext.lastHeartbeat) : "—") : "…"}</span>
+              <span className="font-medium text-foreground">
+                {ready ? (extDisplay.lastHeartbeat ? formatTime(extDisplay.lastHeartbeat) : "—") : "…"}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -104,12 +111,17 @@ export default function DashboardOverviewPage() {
             <Button
               variant="destructive"
               onClick={() => {
-                setConfig((prev) => ({
-                  ...prev,
-                  killSwitchEngaged: true,
-                  agentMode: "observe",
-                  safety: { ...prev.safety, actionBudget: 0, runtimeBudgetMinutes: 0, humanInLoopThreshold: "always_confirm" },
-                }))
+                setConfig((prev) => {
+                  const next: ControlPlaneConfig = {
+                    ...prev,
+                    killSwitchEngaged: true,
+                    agentMode: "observe",
+                    safety: { ...prev.safety, actionBudget: 0, runtimeBudgetMinutes: 0, humanInLoopThreshold: "always_confirm" },
+                  }
+                  bridge.sendConfigUpdate(next)
+                  bridge.sendKillSwitch(true)
+                  return next
+                })
               }}
               disabled={!ready || config.killSwitchEngaged}
             >
@@ -119,7 +131,12 @@ export default function DashboardOverviewPage() {
               variant="outline"
               className="bg-transparent"
               onClick={() => {
-                setConfig((prev) => ({ ...prev, killSwitchEngaged: false }))
+                setConfig((prev) => {
+                  const next = { ...prev, killSwitchEngaged: false }
+                  bridge.sendConfigUpdate(next)
+                  bridge.sendKillSwitch(false)
+                  return next
+                })
               }}
               disabled={!ready || !config.killSwitchEngaged}
             >

@@ -97,6 +97,7 @@ export default function LoginPage() {
                     setAuth({ email: "guest@local", isGuest: true })
                     router.push("/dashboard")
                   }}
+                  aria-label="Continue as guest"
                 >
                   Continue as guest
                 </Button>

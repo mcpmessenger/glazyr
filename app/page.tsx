@@ -12,9 +12,7 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <header className="flex items-center justify-between mb-12">
           <div className="flex items-start gap-4">
-            <div className="glass-subtle rounded-2xl p-2 border border-border/40">
-              <Image src="/glazyr-logo.png" alt="Glazyr eye mark" width={56} height={56} priority className="rounded-xl" />
-            </div>
+            <Image src="/glazyr-logo.png" alt="Glazyr eye mark" width={56} height={56} priority className="rounded-xl" />
             <div>
             <p className="text-sm text-muted-foreground">Glazyr</p>
             <h1 className="text-4xl md:text-5xl font-bold text-gradient leading-tight">Web Control Plane</h1>

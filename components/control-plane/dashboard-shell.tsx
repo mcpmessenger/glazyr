@@ -26,7 +26,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="glass-subtle rounded-2xl p-2 border border-border/40 hover:border-border/70 transition-colors"
+              className="inline-flex"
               aria-label="Glazyr home"
             >
               <Image src="/glazyr-logo.png" alt="Glazyr eye mark" width={40} height={40} priority className="rounded-xl" />

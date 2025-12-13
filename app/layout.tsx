@@ -5,8 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Glazyr Control Plane",
-  description: "Configure agent behavior, safety boundaries, and review task outcomes.",
+  title: "Glazyr",
+  description: "Safety-first automation control plane for AI agents: govern, monitor, and scale with confidence.",
   generator: "v0.app",
   icons: {
     icon: [

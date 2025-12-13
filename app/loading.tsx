@@ -5,13 +5,15 @@ export default function Loading() {
     <div className="fixed inset-0 z-50 bg-background">
       <video
         className="absolute inset-0 h-full w-full object-cover opacity-80"
-        src="/splash.mp4"
         autoPlay
         muted
         loop
         playsInline
         preload="metadata"
-      />
+      >
+        <source src="/splash-mobile.mp4" type="video/mp4" media="(max-width: 640px)" />
+        <source src="/splash-desktop.mp4" type="video/mp4" />
+      </video>
       <div className="absolute inset-0 bg-background/45 backdrop-blur-[1px]" />
 
       <div className="relative h-full w-full flex items-center justify-center px-6">

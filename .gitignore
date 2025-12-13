@@ -26,6 +26,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# media downloads (keep the approved splash asset)
+# media downloads (only keep approved splash assets)
 *.mp4
-!public/splash.mp4
+!public/splash-desktop.mp4
+!public/splash-mobile.mp4

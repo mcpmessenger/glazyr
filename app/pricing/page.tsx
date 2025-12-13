@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -37,22 +37,9 @@ export default function PricingPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="container mx-auto px-4 py-10 max-w-6xl">
-        <header className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost">
-              <Link href="/">Home</Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link href="/how-it-works">How it works</Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link href="/privacy-security">Privacy & security</Link>
-            </Button>
-          </div>
-          <ThemeToggle />
-        </header>
+        <SiteHeader />
 
-        <div className="glass rounded-xl border border-border/50 p-6 mb-6">
+        <div className="glass rounded-xl border border-border/50 p-6 mb-6 mt-6">
           <h1 className="text-3xl font-bold text-gradient">Pricing</h1>
           <p className="text-sm text-muted-foreground mt-2 max-w-2xl leading-relaxed">
             Glazyr is mission control for safety-first web automation. Pricing reflects governance, monitoring, and safe

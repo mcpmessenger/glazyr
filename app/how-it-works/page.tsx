@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import ArchitectureDiagram from "@/assets/architecture.png"
@@ -9,14 +9,9 @@ export default function HowItWorksPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="container mx-auto px-4 py-10 max-w-4xl">
-        <header className="flex items-center justify-between mb-8">
-          <Button asChild variant="ghost">
-            <Link href="/">Home</Link>
-          </Button>
-          <ThemeToggle />
-        </header>
+        <SiteHeader />
 
-        <Card className="glass">
+        <Card className="glass mt-6">
           <CardHeader>
             <CardTitle>How it works</CardTitle>
           </CardHeader>

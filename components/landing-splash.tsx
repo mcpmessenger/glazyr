@@ -74,13 +74,15 @@ export function LandingSplash({ storageKey = "glazyr:splash-dismissed" }: Props)
       <video
         ref={videoRef}
         className="absolute inset-0 h-full w-full object-cover"
-        src="/splash.mp4"
         autoPlay
         muted
         playsInline
         preload="auto"
         onEnded={dismiss}
-      />
+      >
+        <source src="/splash-mobile.mp4" type="video/mp4" media="(max-width: 640px)" />
+        <source src="/splash-desktop.mp4" type="video/mp4" />
+      </video>
       <div className="absolute inset-0 bg-background/15" />
     </div>
   )

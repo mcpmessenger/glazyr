@@ -9,8 +9,8 @@
   --background: oklch(0.98 0.005 240);
   --foreground: oklch(0.25 0.02 250);
 
-  /* Glass surface */
-  --card: oklch(0.99 0.003 240 / 0.4);
+  /* Glass surface (more visible) */
+  --card: oklch(0.99 0.003 240 / 0.62);
   --card-foreground: oklch(0.25 0.02 250);
 
   /* Popover glass */
@@ -37,9 +37,9 @@
   --destructive: oklch(0.6 0.2 30);
   --destructive-foreground: oklch(0.99 0 0);
 
-  /* Borders and inputs - subtle */
-  --border: oklch(0.88 0.01 240 / 0.3);
-  --input: oklch(0.95 0.005 240 / 0.4);
+  /* Borders and inputs (more contrast) */
+  --border: oklch(0.82 0.015 240 / 0.55);
+  --input: oklch(0.95 0.005 240 / 0.6);
   --ring: oklch(0.65 0.12 240);
 
   /* Chart colors */
@@ -67,7 +67,7 @@
   --background: oklch(0.12 0.015 250);
   --foreground: oklch(0.96 0.005 240);
 
-  --card: oklch(0.18 0.02 250 / 0.4);
+  --card: oklch(0.18 0.02 250 / 0.6);
   --card-foreground: oklch(0.96 0.005 240);
 
   --popover: oklch(0.18 0.02 250 / 0.5);
@@ -88,8 +88,8 @@
   --destructive: oklch(0.55 0.22 30);
   --destructive-foreground: oklch(0.96 0.005 240);
 
-  --border: oklch(0.3 0.02 250 / 0.3);
-  --input: oklch(0.22 0.02 250 / 0.4);
+  --border: oklch(0.35 0.03 250 / 0.6);
+  --input: oklch(0.22 0.02 250 / 0.6);
   --ring: oklch(0.7 0.15 240);
 
   --chart-1: oklch(0.7 0.15 240);
@@ -188,18 +188,24 @@
   }
 
   .glass {
-    @apply backdrop-blur-xl bg-card/60 border border-border/50;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    @apply backdrop-blur-xl bg-card/95 border border-border/80;
+    box-shadow:
+      0 12px 38px rgba(31, 38, 135, 0.10),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
   }
 
   .glass-strong {
-    @apply backdrop-blur-2xl bg-card/80 border border-border/70;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    @apply backdrop-blur-2xl bg-card border border-border;
+    box-shadow:
+      0 16px 48px rgba(31, 38, 135, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
   }
 
   .glass-subtle {
-    @apply backdrop-blur-md bg-card/40 border border-border/30;
-    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.04);
+    @apply backdrop-blur-md bg-card/80 border border-border/70;
+    box-shadow:
+      0 8px 24px rgba(31, 38, 135, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.30);
   }
 
   .text-gradient {

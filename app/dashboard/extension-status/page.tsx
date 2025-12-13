@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useExtensionBridge } from "@/hooks/use-extension-bridge"
+import { useExtensionStatus } from "@/hooks/use-extension-status"
 
 function formatTime(ts: number) {
   return new Date(ts).toLocaleString()
@@ -10,7 +11,8 @@ function formatTime(ts: number) {
 
 export default function ExtensionStatusPage() {
   const bridge = useExtensionBridge()
-  const status = bridge.status
+  const server = useExtensionStatus()
+  const status = server.status
 
   return (
     <div className="space-y-6">
@@ -31,7 +33,7 @@ export default function ExtensionStatusPage() {
             <div className="text-sm">
               <span className="text-muted-foreground">Status:</span>{" "}
               <span className="font-medium text-foreground">
-                {status.connected ? "Connected" : "Disconnected"}
+                {server.loading ? "…" : status.connected ? "Connected" : "Disconnected"}
               </span>
             </div>
             <div className="text-xs text-muted-foreground">
@@ -43,14 +45,44 @@ export default function ExtensionStatusPage() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Browser type</label>
               <div className="rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm">
-                {status.browserType}
+                {server.loading ? "…" : status.browserType}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Policy enforcement</label>
+              <div className="rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm">
+                {server.loading ? "…" : status.policyEnforced ? "Enforcing config" : "Not enforcing (unknown)"}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Kill switch (extension)</label>
+              <div className="rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm">
+                {server.loading ? "…" : status.killSwitchEngaged ? "Engaged" : "Not engaged"}
               </div>
             </div>
 
             <div className="space-y-2 lg:col-span-2">
               <label className="text-sm font-medium">Permissions granted</label>
               <div className="rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm">
-                {status.permissionsGranted.length ? status.permissionsGranted.join(", ") : "—"}
+                {server.loading ? "…" : status.permissionsGranted.length ? status.permissionsGranted.join(", ") : "—"}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Agent mode (extension)</label>
+              <div className="rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm">
+                {server.loading ? "…" : status.agentMode}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Allowed domains loaded</label>
+              <div className="rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm">
+                {server.loading ? "…" : String(status.allowedDomainsCount ?? 0)}
               </div>
             </div>
           </div>
@@ -59,7 +91,7 @@ export default function ExtensionStatusPage() {
             <div className="text-sm">
               <span className="text-muted-foreground">Last heartbeat:</span>{" "}
               <span className="font-medium text-foreground">
-                {status.lastHeartbeat ? formatTime(status.lastHeartbeat) : "—"}
+                {server.loading ? "…" : status.lastHeartbeat ? formatTime(status.lastHeartbeat) : "—"}
               </span>
             </div>
             <button

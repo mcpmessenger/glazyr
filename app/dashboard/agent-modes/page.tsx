@@ -3,8 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useExtensionBridge } from "@/hooks/use-extension-bridge"
-import { useLocalStorageState } from "@/hooks/use-local-storage-state"
-import { DEFAULT_CONTROL_PLANE_CONFIG } from "@/lib/control-plane-defaults"
+import { useControlPlaneConfig } from "@/hooks/use-control-plane-config"
 import type { AgentMode, ControlPlaneConfig } from "@/lib/control-plane-types"
 
 const modes: { mode: AgentMode; title: string; description: string }[] = [
@@ -15,10 +14,7 @@ const modes: { mode: AgentMode; title: string; description: string }[] = [
 
 export default function AgentModesPage() {
   const bridge = useExtensionBridge()
-  const [config, setConfig, mounted] = useLocalStorageState<ControlPlaneConfig>(
-    "glazyr-control-plane-config",
-    DEFAULT_CONTROL_PLANE_CONFIG,
-  )
+  const { config, setConfig, loading } = useControlPlaneConfig()
 
   return (
     <div className="space-y-6">
@@ -29,7 +25,7 @@ export default function AgentModesPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {modes.map((m) => {
-          const selected = mounted && config.agentMode === m.mode
+          const selected = !loading && config.agentMode === m.mode
           return (
             <Card key={m.mode} className={`glass ${selected ? "ring-2 ring-primary/40" : ""}`}>
               <CardHeader>
@@ -47,11 +43,11 @@ export default function AgentModesPage() {
                       return next
                     })
                   }
-                  disabled={!mounted || config.killSwitchEngaged}
+                  disabled={loading || config.killSwitchEngaged}
                 >
                   {selected ? "Selected" : "Select"}
                 </Button>
-                {mounted && config.killSwitchEngaged ? (
+                {!loading && config.killSwitchEngaged ? (
                   <p className="text-xs text-muted-foreground">
                     Kill switch is engaged. Resume first to change mode.
                   </p>

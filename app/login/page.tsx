@@ -6,23 +6,21 @@ import Link from "next/link"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useLocalStorageState } from "@/hooks/use-local-storage-state"
-
-type AuthState = { email: string; isGuest?: boolean } | null
+import { useAuth } from "@/hooks/use-auth"
 
 export default function LoginPage() {
   const router = useRouter()
-  const [auth, setAuth] = useLocalStorageState<AuthState>("glazyr-auth", null)
+  const { auth, loading, error, signIn, continueAsGuest, signOut } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
   const canSubmit = useMemo(() => email.trim().length > 3 && password.trim().length > 0, [email, password])
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!canSubmit) return
-    setAuth({ email: email.trim(), isGuest: false })
-    router.push("/dashboard")
+    const ok = await signIn(email.trim(), password)
+    if (ok) router.push("/dashboard")
   }
 
   return (
@@ -53,7 +51,7 @@ export default function LoginPage() {
                     variant="outline"
                     className="bg-transparent"
                     onClick={() => {
-                      setAuth(null)
+                      void signOut()
                       setEmail("")
                       setPassword("")
                     }}
@@ -86,21 +84,23 @@ export default function LoginPage() {
                     placeholder="••••••••"
                   />
                 </div>
-                <Button type="submit" disabled={!canSubmit} className="w-full">
+                <Button type="submit" disabled={!canSubmit || loading} className="w-full">
                   Sign in
                 </Button>
                 <Button
                   type="button"
                   variant="secondary"
                   className="w-full"
-                  onClick={() => {
-                    setAuth({ email: "guest@local", isGuest: true })
-                    router.push("/dashboard")
+                  onClick={async () => {
+                    const ok = await continueAsGuest()
+                    if (ok) router.push("/dashboard")
                   }}
                   aria-label="Continue as guest"
+                  disabled={loading}
                 >
                   Continue as guest
                 </Button>
+                {error ? <p className="text-xs text-destructive">{error}</p> : null}
                 <p className="text-xs text-muted-foreground">
                   This is a frontend-only placeholder. Wire to your auth service later.
                 </p>

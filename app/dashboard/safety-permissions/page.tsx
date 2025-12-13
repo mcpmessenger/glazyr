@@ -4,8 +4,7 @@ import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useExtensionBridge } from "@/hooks/use-extension-bridge"
-import { useLocalStorageState } from "@/hooks/use-local-storage-state"
-import { DEFAULT_CONTROL_PLANE_CONFIG } from "@/lib/control-plane-defaults"
+import { useControlPlaneConfig } from "@/hooks/use-control-plane-config"
 import type { ControlPlaneConfig } from "@/lib/control-plane-types"
 
 function splitLines(text: string): string[] {
@@ -17,15 +16,12 @@ function splitLines(text: string): string[] {
 
 export default function SafetyPermissionsPage() {
   const bridge = useExtensionBridge()
-  const [config, setConfig, mounted] = useLocalStorageState<ControlPlaneConfig>(
-    "glazyr-control-plane-config",
-    DEFAULT_CONTROL_PLANE_CONFIG,
-  )
+  const { config, setConfig, loading } = useControlPlaneConfig()
 
   const [domainsDraft, setDomainsDraft] = useState("")
   const [disallowedDraft, setDisallowedDraft] = useState("")
 
-  const canApply = useMemo(() => mounted && !config.killSwitchEngaged, [mounted, config.killSwitchEngaged])
+  const canApply = useMemo(() => !loading && !config.killSwitchEngaged, [loading, config.killSwitchEngaged])
 
   return (
     <div className="space-y-6">
@@ -48,7 +44,7 @@ export default function SafetyPermissionsPage() {
               className="min-h-[160px] w-full rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
               value={domainsDraft}
               onChange={(e) => setDomainsDraft(e.target.value)}
-              placeholder={mounted ? config.safety.allowedDomains.join("\n") || "example.com\napp.company.com" : "…"}
+              placeholder={!loading ? config.safety.allowedDomains.join("\n") || "example.com\napp.company.com" : "…"}
             />
             <Button
               onClick={() =>
@@ -78,7 +74,7 @@ export default function SafetyPermissionsPage() {
               className="min-h-[160px] w-full rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
               value={disallowedDraft}
               onChange={(e) => setDisallowedDraft(e.target.value)}
-              placeholder={mounted ? config.safety.disallowedActions.join("\n") : "…"}
+              placeholder={!loading ? config.safety.disallowedActions.join("\n") : "…"}
             />
             <Button
               onClick={() =>
@@ -108,7 +104,7 @@ export default function SafetyPermissionsPage() {
           <CardContent className="space-y-3 text-sm">
             <select
               className="w-full rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-              value={mounted ? config.safety.humanInLoopThreshold : "high_risk_only"}
+              value={!loading ? config.safety.humanInLoopThreshold : "high_risk_only"}
               onChange={(e) =>
                 setConfig((prev) => {
                   const next: ControlPlaneConfig = {
@@ -141,7 +137,7 @@ export default function SafetyPermissionsPage() {
               className="w-full rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
               type="number"
               min={0}
-              value={mounted ? config.safety.runtimeBudgetMinutes : 0}
+              value={!loading ? config.safety.runtimeBudgetMinutes : 0}
               onChange={(e) =>
                 setConfig((prev) => {
                   const next: ControlPlaneConfig = {
@@ -167,7 +163,7 @@ export default function SafetyPermissionsPage() {
               className="w-full rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
               type="number"
               min={0}
-              value={mounted ? config.safety.actionBudget : 0}
+              value={!loading ? config.safety.actionBudget : 0}
               onChange={(e) =>
                 setConfig((prev) => {
                   const next: ControlPlaneConfig = {
@@ -184,7 +180,7 @@ export default function SafetyPermissionsPage() {
         </Card>
       </div>
 
-      {mounted && config.killSwitchEngaged ? (
+      {!loading && config.killSwitchEngaged ? (
         <div className="text-sm text-muted-foreground">
           Kill switch is engaged. Resume from <span className="text-foreground font-medium">Overview</span> to edit safety.
         </div>

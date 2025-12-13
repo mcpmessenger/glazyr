@@ -1,16 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { useLocalStorageState } from "@/hooks/use-local-storage-state"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-
-type AuthState = { email: string; isGuest?: boolean } | null
+import { useAuth } from "@/hooks/use-auth"
 
 export function RequireAuth({ children }: { children: React.ReactNode }) {
-  const [auth, setAuth, mounted] = useLocalStorageState<AuthState>("glazyr-auth", null)
+  const { auth, loading, continueAsGuest } = useAuth()
 
-  if (!mounted) {
+  if (loading) {
     return (
       <div className="container mx-auto px-4 py-10 max-w-5xl">
         <Card className="glass">
@@ -37,7 +35,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
             </Button>
             <Button
               variant="secondary"
-              onClick={() => setAuth({ email: "guest@local", isGuest: true })}
+              onClick={() => void continueAsGuest()}
               aria-label="Continue as guest"
             >
               Continue as guest

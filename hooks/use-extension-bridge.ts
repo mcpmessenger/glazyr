@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { DEFAULT_EXTENSION_STATUS } from "@/lib/control-plane-defaults"
 import type { ControlPlaneConfig, ExtensionStatus } from "@/lib/control-plane-types"
+import { postExtensionStatus } from "@/lib/api/extension"
 
 const WEB_SOURCE = "glazyr-web" as const
 const EXT_SOURCE = "glazyr-extension" as const
@@ -104,11 +105,7 @@ export function useExtensionBridge(options?: { pingIntervalMs?: number; staleAft
       if (data.type === "glazyr:pong") {
         setStatus((prev) => {
           const next = { ...prev, connected: true, lastHeartbeat: now }
-          try {
-            localStorage.setItem("glazyr-extension-status", JSON.stringify(next))
-          } catch {
-            // ignore
-          }
+          void postExtensionStatus({ connected: true, lastHeartbeat: now }).catch(() => {})
           return next
         })
         return
@@ -123,11 +120,7 @@ export function useExtensionBridge(options?: { pingIntervalMs?: number; staleAft
             lastHeartbeat: data.payload.lastHeartbeat ?? prev.lastHeartbeat ?? now,
             connected: true,
           }
-          try {
-            localStorage.setItem("glazyr-extension-status", JSON.stringify(merged))
-          } catch {
-            // ignore
-          }
+          void postExtensionStatus(merged).catch(() => {})
           return merged
         })
       }

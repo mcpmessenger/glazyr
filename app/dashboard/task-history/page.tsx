@@ -2,7 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useLocalStorageState } from "@/hooks/use-local-storage-state"
+import { useTaskSummaries } from "@/hooks/use-task-summaries"
+import { createTaskSummary } from "@/lib/api/tasks"
 import type { TaskOutcome, TaskSummary } from "@/lib/control-plane-types"
 
 function formatTime(ts: number) {
@@ -21,7 +22,7 @@ function badge(outcome: TaskOutcome) {
 }
 
 export default function TaskHistoryPage() {
-  const [tasks, setTasks, mounted] = useLocalStorageState<TaskSummary[]>("glazyr-task-summaries", [])
+  const { tasks, loading, refresh, clear } = useTaskSummaries()
 
   return (
     <div className="space-y-6">
@@ -38,7 +39,7 @@ export default function TaskHistoryPage() {
           <CardDescription>Most recent first.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {!mounted ? (
+          {loading ? (
             <div className="text-sm text-muted-foreground">…</div>
           ) : tasks.length === 0 ? (
             <div className="text-sm text-muted-foreground">No tasks recorded yet.</div>
@@ -64,41 +65,42 @@ export default function TaskHistoryPage() {
             <Button
               variant="outline"
               className="bg-transparent"
-              onClick={() => {
+              onClick={async () => {
                 const now = Date.now()
-                setTasks([
-                  {
+                await Promise.all([
+                  createTaskSummary({
                     id: crypto.randomUUID(),
                     name: "Update account profile details",
                     outcome: "success",
                     timestamp: now - 1000 * 60 * 12,
                     summary: "Completed successfully. No sensitive fields were accessed.",
-                  },
-                  {
+                  }),
+                  createTaskSummary({
                     id: crypto.randomUUID(),
                     name: "Schedule meeting with vendor",
                     outcome: "cancelled",
                     timestamp: now - 1000 * 60 * 45,
                     summary: "Cancelled by user during confirmation step.",
-                  },
-                  {
+                  }),
+                  createTaskSummary({
                     id: crypto.randomUUID(),
                     name: "Export quarterly report",
                     outcome: "failed",
                     timestamp: now - 1000 * 60 * 90,
                     summary: "Failed due to missing permissions for the target domain.",
-                  },
+                  }),
                 ])
+                await refresh()
               }}
-              disabled={!mounted}
+              disabled={loading}
             >
               Load demo data
             </Button>
             <Button
               variant="outline"
               className="bg-transparent"
-              onClick={() => setTasks([])}
-              disabled={!mounted || tasks.length === 0}
+              onClick={() => void clear()}
+              disabled={loading || tasks.length === 0}
             >
               Clear
             </Button>

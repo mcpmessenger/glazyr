@@ -4,9 +4,11 @@ import { useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useExtensionBridge } from "@/hooks/use-extension-bridge"
-import { useLocalStorageState } from "@/hooks/use-local-storage-state"
-import { DEFAULT_CONTROL_PLANE_CONFIG, DEFAULT_EXTENSION_STATUS } from "@/lib/control-plane-defaults"
-import type { ControlPlaneConfig, ExtensionStatus, TaskSummary } from "@/lib/control-plane-types"
+import { useControlPlaneConfig } from "@/hooks/use-control-plane-config"
+import { useExtensionStatus } from "@/hooks/use-extension-status"
+import { useTaskSummaries } from "@/hooks/use-task-summaries"
+import { setKillSwitch } from "@/lib/api/killswitch"
+import type { ControlPlaneConfig } from "@/lib/control-plane-types"
 
 function formatTime(ts: number) {
   return new Date(ts).toLocaleString()
@@ -14,17 +16,19 @@ function formatTime(ts: number) {
 
 export default function DashboardOverviewPage() {
   const bridge = useExtensionBridge()
-  const [config, setConfig, mountedConfig] = useLocalStorageState<ControlPlaneConfig>(
-    "glazyr-control-plane-config",
-    DEFAULT_CONTROL_PLANE_CONFIG,
+  const configState = useControlPlaneConfig()
+  const tasksState = useTaskSummaries()
+  const extState = useExtensionStatus()
+
+  const lastTask = useMemo(
+    () => (tasksState.tasks.length ? tasksState.tasks.slice().sort((a, b) => b.timestamp - a.timestamp)[0] : null),
+    [tasksState.tasks],
   )
-  const [ext, _setExt, mountedExt] = useLocalStorageState<ExtensionStatus>("glazyr-extension-status", DEFAULT_EXTENSION_STATUS)
-  const [tasks, _setTasks, mountedTasks] = useLocalStorageState<TaskSummary[]>("glazyr-task-summaries", [])
 
-  const lastTask = useMemo(() => (tasks.length ? tasks.slice().sort((a, b) => b.timestamp - a.timestamp)[0] : null), [tasks])
-
-  const ready = mountedConfig && mountedExt && mountedTasks
-  const extDisplay = bridge.connected ? bridge.status : ext
+  const ready = !configState.loading && !tasksState.loading && !extState.loading
+  const config = configState.config
+  const setConfig = configState.setConfig
+  const extDisplay = bridge.connected ? bridge.status : extState.status
 
   return (
     <div className="space-y-6">
@@ -110,18 +114,11 @@ export default function DashboardOverviewPage() {
           <div className="flex gap-3">
             <Button
               variant="destructive"
-              onClick={() => {
-                setConfig((prev) => {
-                  const next: ControlPlaneConfig = {
-                    ...prev,
-                    killSwitchEngaged: true,
-                    agentMode: "observe",
-                    safety: { ...prev.safety, actionBudget: 0, runtimeBudgetMinutes: 0, humanInLoopThreshold: "always_confirm" },
-                  }
-                  bridge.sendConfigUpdate(next)
-                  bridge.sendKillSwitch(true)
-                  return next
-                })
+              onClick={async () => {
+                const next = await setKillSwitch(true)
+                configState.setConfigImmediate(next)
+                bridge.sendConfigUpdate(next)
+                bridge.sendKillSwitch(true)
               }}
               disabled={!ready || config.killSwitchEngaged}
             >
@@ -130,13 +127,11 @@ export default function DashboardOverviewPage() {
             <Button
               variant="outline"
               className="bg-transparent"
-              onClick={() => {
-                setConfig((prev) => {
-                  const next = { ...prev, killSwitchEngaged: false }
-                  bridge.sendConfigUpdate(next)
-                  bridge.sendKillSwitch(false)
-                  return next
-                })
+              onClick={async () => {
+                const next = await setKillSwitch(false)
+                configState.setConfigImmediate(next)
+                bridge.sendConfigUpdate(next)
+                bridge.sendKillSwitch(false)
               }}
               disabled={!ready || !config.killSwitchEngaged}
             >

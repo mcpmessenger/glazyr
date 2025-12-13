@@ -4,13 +4,11 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useLocalStorageState } from "@/hooks/use-local-storage-state"
-
-type AuthState = { email: string; isGuest?: boolean } | null
+import { useAuth } from "@/hooks/use-auth"
 
 export default function AccountPage() {
   const router = useRouter()
-  const [auth, setAuth, mounted] = useLocalStorageState<AuthState>("glazyr-auth", null)
+  const { auth, loading, signOut } = useAuth()
 
   return (
     <div className="space-y-6">
@@ -27,21 +25,20 @@ export default function AccountPage() {
         <CardContent className="space-y-4">
           <div className="text-sm">
             <span className="text-muted-foreground">Email:</span>{" "}
-            <span className="font-medium text-foreground">{!mounted ? "…" : auth?.email || "—"}</span>
-            {mounted && auth?.isGuest ? <span className="ml-2 text-xs text-muted-foreground">(guest)</span> : null}
+            <span className="font-medium text-foreground">{loading ? "…" : auth?.email || "—"}</span>
+            {!loading && auth?.isGuest ? <span className="ml-2 text-xs text-muted-foreground">(guest)</span> : null}
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
-            {mounted && auth?.isGuest ? (
+            {!loading && auth?.isGuest ? (
               <Button onClick={() => router.push("/login")}>Sign in</Button>
             ) : null}
             <Button
               variant="outline"
               className="bg-transparent"
               onClick={() => {
-                setAuth(null)
-                router.push("/")
+                void signOut().then(() => router.push("/"))
               }}
-              disabled={!mounted}
+              disabled={loading}
             >
               Sign out
             </Button>

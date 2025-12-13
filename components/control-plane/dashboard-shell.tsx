@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -22,9 +23,18 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         <header className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-sm text-muted-foreground">Glazyr</p>
-            <h1 className="text-2xl font-semibold">Dashboard</h1>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="glass-subtle rounded-2xl p-2 border border-border/40 hover:border-border/70 transition-colors"
+              aria-label="Glazyr home"
+            >
+              <Image src="/glazyr-logo.png" alt="Glazyr logo" width={40} height={40} priority className="rounded-xl" />
+            </Link>
+            <div>
+              <p className="text-sm text-muted-foreground">Glazyr</p>
+              <h1 className="text-2xl font-semibold">Dashboard</h1>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost">

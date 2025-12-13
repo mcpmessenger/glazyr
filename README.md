@@ -82,6 +82,30 @@ Then open:
 - `http://localhost:3000/` (home)
 - `http://localhost:3000/dashboard` (dashboard — includes **guest mode**)
 
+## Deploy (fast URL: Vercel)
+
+This repo can be deployed to Vercel immediately to get a shareable HTTPS URL.
+
+- Import the GitHub repo in Vercel
+- Use the default Next.js settings
+- Package manager: **npm** (recommended here because `package-lock.json` is present)
+
+Notes:
+- This project is currently configured for **static export**, so it behaves like a static site on Vercel.
+- If you later add server-side auth or route handlers, you may remove static export.
+
+## Deploy (AWS: S3 static site)
+
+This repo is configured for static export via `next.config.mjs` (`output: 'export'`).
+
+Build the static site:
+
+```bash
+npm run build
+```
+
+Upload the generated `out/` directory to an S3 bucket configured for static website hosting (ideally behind CloudFront).
+
 ## Current state (important)
 - **Auth**: demo/local (supports **guest** and a simple “email/password” placeholder)
 - **Config + status + task history**: stored in `localStorage` for now

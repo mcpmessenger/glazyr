@@ -1,0 +1,29 @@
+import Image from "next/image"
+
+export default function Loading() {
+  return (
+    <div className="fixed inset-0 z-50 bg-background">
+      <video
+        className="absolute inset-0 h-full w-full object-cover opacity-80"
+        src="/splash.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      />
+      <div className="absolute inset-0 bg-background/45 backdrop-blur-[1px]" />
+
+      <div className="relative h-full w-full flex items-center justify-center px-6">
+        <div className="glass-strong rounded-2xl border border-border/50 p-6 flex items-center gap-4">
+          <Image src="/glazyr-logo.png" alt="Glazyr logo" width={40} height={40} className="rounded-xl" priority />
+          <div>
+            <div className="text-sm text-muted-foreground">Glazyr</div>
+            <div className="text-base font-medium text-foreground">Loading…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+

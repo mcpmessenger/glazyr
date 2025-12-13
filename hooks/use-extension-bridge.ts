@@ -55,11 +55,13 @@ export function useExtensionBridge(options?: { pingIntervalMs?: number; staleAft
   const [status, setStatus] = useState<ExtensionStatus>(DEFAULT_EXTENSION_STATUS)
   const [lastSeen, setLastSeen] = useState<number | null>(null)
 
-  // A small clock tick so `connected` can decay even without new messages.
-  const [_tick, setTick] = useState(0)
+  // A small clock so `connected` can decay even without new messages.
+  const [nowMs, setNowMs] = useState(0)
   useEffect(() => {
     if (typeof window === "undefined") return
-    const id = window.setInterval(() => setTick((n) => (n + 1) % 1_000_000), 1000)
+    const update = () => setNowMs(Date.now())
+    update()
+    const id = window.setInterval(update, 1000)
     return () => window.clearInterval(id)
   }, [])
 
@@ -140,8 +142,8 @@ export function useExtensionBridge(options?: { pingIntervalMs?: number; staleAft
 
   const connected = useMemo(() => {
     if (!lastSeen) return false
-    return Date.now() - lastSeen < staleAfterMs
-  }, [lastSeen, staleAfterMs, _tick])
+    return nowMs - lastSeen < staleAfterMs
+  }, [lastSeen, staleAfterMs, nowMs])
 
   // If we go stale, reflect disconnected in status without discarding last known fields.
   useEffect(() => {

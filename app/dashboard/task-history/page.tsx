@@ -4,7 +4,19 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTaskSummaries } from "@/hooks/use-task-summaries"
 import { createTaskSummary } from "@/lib/api/tasks"
-import type { TaskOutcome, TaskSummary } from "@/lib/control-plane-types"
+import type { TaskOutcome } from "@/lib/control-plane-types"
+import { format, startOfDay, subDays } from "date-fns"
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
 
 function formatTime(ts: number) {
   return new Date(ts).toLocaleString()
@@ -24,6 +36,34 @@ function badge(outcome: TaskOutcome) {
 export default function TaskHistoryPage() {
   const { tasks, loading, refresh, clear } = useTaskSummaries()
 
+  const daily = (() => {
+    const days = 14
+    const today = startOfDay(new Date())
+    const byDay = new Map<number, { success: number; failed: number; cancelled: number }>()
+    for (const t of tasks) {
+      const key = startOfDay(new Date(t.timestamp)).getTime()
+      const prev = byDay.get(key) ?? { success: 0, failed: 0, cancelled: 0 }
+      prev[t.outcome]++
+      byDay.set(key, prev)
+    }
+    const out = []
+    for (let i = days - 1; i >= 0; i--) {
+      const d = subDays(today, i)
+      const key = d.getTime()
+      const v = byDay.get(key) ?? { success: 0, failed: 0, cancelled: 0 }
+      const total = v.success + v.failed + v.cancelled
+      out.push({
+        day: format(d, "MMM d"),
+        total,
+        success: v.success,
+        failed: v.failed,
+        cancelled: v.cancelled,
+        successRate: total === 0 ? 0 : Math.round((v.success / total) * 100),
+      })
+    }
+    return out
+  })()
+
   return (
     <div className="space-y-6">
       <div className="glass rounded-xl border border-border/50 p-6">
@@ -32,6 +72,78 @@ export default function TaskHistoryPage() {
           Shows name, outcome, timestamp, and summary. Screenshots, reasoning, and traces are intentionally hidden.
         </p>
       </div>
+
+      <Card className="glass">
+        <CardHeader>
+          <CardTitle>Trends</CardTitle>
+          <CardDescription>Last 14 days (counts and success rate).</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {loading ? (
+            <div className="text-sm text-muted-foreground">…</div>
+          ) : tasks.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No data yet.</div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="h-[220px] rounded-lg border border-border/30 bg-background/20 p-3">
+                <div className="text-xs text-muted-foreground mb-2">Task volume</div>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={daily} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                    <CartesianGrid stroke="var(--border)" strokeOpacity={0.35} vertical={false} />
+                    <XAxis dataKey="day" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} interval={2} />
+                    <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} width={28} allowDecimals={false} />
+                    <Tooltip
+                      cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                      contentStyle={{
+                        background: "rgba(0,0,0,0.6)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: 12,
+                        color: "white",
+                      }}
+                    />
+                    <Bar dataKey="success" stackId="a" fill="var(--color-chart-2)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="failed" stackId="a" fill="var(--destructive)" />
+                    <Bar dataKey="cancelled" stackId="a" fill="var(--muted-foreground)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="h-[220px] rounded-lg border border-border/30 bg-background/20 p-3">
+                <div className="text-xs text-muted-foreground mb-2">Success rate</div>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={daily} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                    <CartesianGrid stroke="var(--border)" strokeOpacity={0.35} vertical={false} />
+                    <XAxis dataKey="day" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} interval={2} />
+                    <YAxis
+                      domain={[0, 100]}
+                      tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                      width={32}
+                      tickFormatter={(v) => `${v}%`}
+                    />
+                    <Tooltip
+                      cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                      formatter={(v: number | string) => [`${v}%`, "Success rate"]}
+                      contentStyle={{
+                        background: "rgba(0,0,0,0.6)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: 12,
+                        color: "white",
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="successRate"
+                      stroke="var(--color-chart-2)"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="glass">
         <CardHeader>

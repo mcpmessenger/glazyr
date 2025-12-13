@@ -37,7 +37,7 @@ export default function PrivacyPolicyPage() {
                   The Glazyr extension is a <span className="text-foreground font-medium">vision-first browsing assistant</span>.
                 </li>
                 <li>
-                  The Glazyr website ("Control Plane") is <span className="text-foreground font-medium">mission control</span>: it stores
+                  The Glazyr website (&ldquo;Control Plane&rdquo;) is <span className="text-foreground font-medium">mission control</span>: it stores
                   configuration and shows high-level outcomes. It does not orchestrate or execute tasks.
                 </li>
                 <li>

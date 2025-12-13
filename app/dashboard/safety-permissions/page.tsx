@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useExtensionBridge } from "@/hooks/use-extension-bridge"
 import { useControlPlaneConfig } from "@/hooks/use-control-plane-config"
+import { SafetyConfigSchema } from "@/lib/control-plane-schemas"
 import type { ControlPlaneConfig } from "@/lib/control-plane-types"
 
 function splitLines(text: string): string[] {
@@ -14,14 +15,67 @@ function splitLines(text: string): string[] {
     .filter(Boolean)
 }
 
+function validateDomains(domains: string[]): string[] {
+  const bad: string[] = []
+  for (const d of domains) {
+    if (d.includes("://") || d.includes("/") || d.includes(" ")) {
+      bad.push(d)
+      continue
+    }
+    if (d !== "localhost" && !d.includes(".")) {
+      bad.push(d)
+      continue
+    }
+  }
+  return bad
+}
+
+function validateActionNames(actions: string[]): string[] {
+  const bad: string[] = []
+  const re = /^[a-z0-9_]+$/i
+  for (const a of actions) {
+    if (!re.test(a)) bad.push(a)
+  }
+  return bad
+}
+
 export default function SafetyPermissionsPage() {
   const bridge = useExtensionBridge()
   const { config, setConfig, loading } = useControlPlaneConfig()
 
   const [domainsDraft, setDomainsDraft] = useState("")
   const [disallowedDraft, setDisallowedDraft] = useState("")
+  const [domainsTouched, setDomainsTouched] = useState(false)
+  const [actionsTouched, setActionsTouched] = useState(false)
 
   const canApply = useMemo(() => !loading && !config.killSwitchEngaged, [loading, config.killSwitchEngaged])
+
+  const domainsText = useMemo(() => {
+    if (loading) return ""
+    return domainsTouched ? domainsDraft : config.safety.allowedDomains.join("\n")
+  }, [loading, domainsTouched, domainsDraft, config.safety.allowedDomains])
+
+  const actionsText = useMemo(() => {
+    if (loading) return ""
+    return actionsTouched ? disallowedDraft : config.safety.disallowedActions.join("\n")
+  }, [loading, actionsTouched, disallowedDraft, config.safety.disallowedActions])
+
+  const domainsNext = useMemo(() => splitLines(domainsText), [domainsText])
+  const disallowedNext = useMemo(() => splitLines(actionsText), [actionsText])
+  const badDomains = useMemo(() => validateDomains(domainsNext), [domainsNext])
+  const badActions = useMemo(() => validateActionNames(disallowedNext), [disallowedNext])
+
+  const domainsChanged = useMemo(
+    () => !loading && domainsNext.join("\n") !== config.safety.allowedDomains.join("\n"),
+    [loading, domainsNext, config.safety.allowedDomains],
+  )
+  const actionsChanged = useMemo(
+    () => !loading && disallowedNext.join("\n") !== config.safety.disallowedActions.join("\n"),
+    [loading, disallowedNext, config.safety.disallowedActions],
+  )
+
+  const domainsValid = badDomains.length === 0
+  const actionsValid = badActions.length === 0
 
   return (
     <div className="space-y-6">
@@ -42,24 +96,46 @@ export default function SafetyPermissionsPage() {
           <CardContent className="space-y-3">
             <textarea
               className="min-h-[160px] w-full rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-              value={domainsDraft}
-              onChange={(e) => setDomainsDraft(e.target.value)}
-              placeholder={!loading ? config.safety.allowedDomains.join("\n") || "example.com\napp.company.com" : "…"}
+              value={domainsText}
+              onChange={(e) => {
+                setDomainsTouched(true)
+                setDomainsDraft(e.target.value)
+              }}
+              placeholder={!loading ? "example.com\napp.company.com" : "…"}
             />
+            {!domainsValid ? (
+              <div className="text-xs text-destructive">
+                Invalid domain entries (no protocol/path/spaces; use `example.com`): {badDomains.slice(0, 5).join(", ")}
+                {badDomains.length > 5 ? ` (+${badDomains.length - 5} more)` : ""}
+              </div>
+            ) : null}
             <Button
               onClick={() =>
                 setConfig((prev) => {
+                  const parsed = SafetyConfigSchema.safeParse({
+                    ...prev.safety,
+                    allowedDomains: domainsNext,
+                  })
+                  if (!parsed.success) return prev
                   const next: ControlPlaneConfig = {
                     ...prev,
-                    safety: { ...prev.safety, allowedDomains: splitLines(domainsDraft) },
+                    safety: parsed.data,
                   }
                   bridge.sendConfigUpdate(next)
                   return next
                 })
               }
-              disabled={!canApply}
+              disabled={!canApply || !domainsChanged || !domainsValid}
             >
               Apply
+            </Button>
+            <Button
+              variant="outline"
+              className="bg-transparent"
+              onClick={() => setDomainsTouched(false)}
+              disabled={loading || !domainsChanged}
+            >
+              Reset
             </Button>
           </CardContent>
         </Card>
@@ -72,24 +148,46 @@ export default function SafetyPermissionsPage() {
           <CardContent className="space-y-3">
             <textarea
               className="min-h-[160px] w-full rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-              value={disallowedDraft}
-              onChange={(e) => setDisallowedDraft(e.target.value)}
-              placeholder={!loading ? config.safety.disallowedActions.join("\n") : "…"}
+              value={actionsText}
+              onChange={(e) => {
+                setActionsTouched(true)
+                setDisallowedDraft(e.target.value)
+              }}
+              placeholder={!loading ? "purchase\ntransfer_money\ndelete_data\nchange_security_settings" : "…"}
             />
+            {!actionsValid ? (
+              <div className="text-xs text-destructive">
+                Invalid action names (letters/numbers/underscore only): {badActions.slice(0, 5).join(", ")}
+                {badActions.length > 5 ? ` (+${badActions.length - 5} more)` : ""}
+              </div>
+            ) : null}
             <Button
               onClick={() =>
                 setConfig((prev) => {
+                  const parsed = SafetyConfigSchema.safeParse({
+                    ...prev.safety,
+                    disallowedActions: disallowedNext,
+                  })
+                  if (!parsed.success) return prev
                   const next: ControlPlaneConfig = {
                     ...prev,
-                    safety: { ...prev.safety, disallowedActions: splitLines(disallowedDraft) },
+                    safety: parsed.data,
                   }
                   bridge.sendConfigUpdate(next)
                   return next
                 })
               }
-              disabled={!canApply}
+              disabled={!canApply || !actionsChanged || !actionsValid}
             >
               Apply
+            </Button>
+            <Button
+              variant="outline"
+              className="bg-transparent"
+              onClick={() => setActionsTouched(false)}
+              disabled={loading || !actionsChanged}
+            >
+              Reset
             </Button>
           </CardContent>
         </Card>

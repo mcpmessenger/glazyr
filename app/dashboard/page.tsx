@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useExtensionBridge } from "@/hooks/use-extension-bridge"
@@ -8,10 +8,46 @@ import { useControlPlaneConfig } from "@/hooks/use-control-plane-config"
 import { useExtensionStatus } from "@/hooks/use-extension-status"
 import { useTaskSummaries } from "@/hooks/use-task-summaries"
 import { setKillSwitch } from "@/lib/api/killswitch"
-import type { ControlPlaneConfig } from "@/lib/control-plane-types"
 
 function formatTime(ts: number) {
   return new Date(ts).toLocaleString()
+}
+
+function formatHeartbeat(ts: number | null, nowMs: number) {
+  if (!ts) return "—"
+  const deltaMs = nowMs - ts
+  const deltaSec = Math.max(0, Math.floor(deltaMs / 1000))
+  if (deltaSec < 60) return `${deltaSec}s ago`
+  const deltaMin = Math.floor(deltaSec / 60)
+  if (deltaMin < 60) return `${deltaMin}m ago`
+  const deltaHr = Math.floor(deltaMin / 60)
+  return `${deltaHr}h ago`
+}
+
+function StatusPill({
+  label,
+  value,
+  tone,
+}: {
+  label: string
+  value: string
+  tone: "ok" | "warn" | "bad" | "neutral"
+}) {
+  const toneClass =
+    tone === "ok"
+      ? "bg-chart-2/15 text-chart-2 border-chart-2/30"
+      : tone === "warn"
+        ? "bg-primary/10 text-foreground border-border/50"
+        : tone === "bad"
+          ? "bg-destructive/15 text-destructive border-destructive/30"
+          : "bg-muted/40 text-muted-foreground border-border/40"
+
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm glass-subtle">
+      <span className="text-muted-foreground">{label}</span>
+      <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs ${toneClass}`}>{value}</span>
+    </div>
+  )
 }
 
 export default function DashboardOverviewPage() {
@@ -20,6 +56,14 @@ export default function DashboardOverviewPage() {
   const tasksState = useTaskSummaries()
   const extState = useExtensionStatus()
 
+  const [nowMs, setNowMs] = useState(0)
+  useEffect(() => {
+    const update = () => setNowMs(Date.now())
+    update()
+    const id = window.setInterval(update, 10_000)
+    return () => window.clearInterval(id)
+  }, [])
+
   const lastTask = useMemo(
     () => (tasksState.tasks.length ? tasksState.tasks.slice().sort((a, b) => b.timestamp - a.timestamp)[0] : null),
     [tasksState.tasks],
@@ -27,14 +71,32 @@ export default function DashboardOverviewPage() {
 
   const ready = !configState.loading && !tasksState.loading && !extState.loading
   const config = configState.config
-  const setConfig = configState.setConfig
   const extDisplay = bridge.connected ? bridge.status : extState.status
+
+  const killSwitchTone = !ready ? "neutral" : config.killSwitchEngaged ? "bad" : "ok"
+  const extTone = !ready ? "neutral" : extDisplay.connected ? "ok" : "warn"
+  const heartbeatTone =
+    !ready || !extDisplay.lastHeartbeat
+      ? "neutral"
+      : nowMs - extDisplay.lastHeartbeat > 1000 * 60 * 2
+        ? "warn"
+        : "ok"
 
   return (
     <div className="space-y-6">
       <div className="glass rounded-xl border border-border/50 p-6">
         <h2 className="text-xl font-semibold">Overview</h2>
         <p className="text-sm text-muted-foreground mt-1">Outcomes and configuration at a glance.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <StatusPill label="Kill switch" value={!ready ? "…" : config.killSwitchEngaged ? "Engaged" : "Ready"} tone={killSwitchTone} />
+        <StatusPill
+          label="Extension"
+          value={!ready ? "…" : extDisplay.connected ? "Connected" : "Disconnected"}
+          tone={extTone}
+        />
+        <StatusPill label="Heartbeat" value={!ready ? "…" : formatHeartbeat(extDisplay.lastHeartbeat, nowMs)} tone={heartbeatTone} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

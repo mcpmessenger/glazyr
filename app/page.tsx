@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import { LandingSplash } from "@/components/landing-splash"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -7,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <LandingSplash />
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <header className="flex items-center justify-between mb-12">
           <div className="flex items-start gap-4">
@@ -55,6 +57,9 @@ export default function Home() {
               </Button>
               <Button asChild variant="outline" className="w-full bg-transparent">
                 <Link href="/privacy-security">Privacy & security</Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full bg-transparent">
+                <Link href="/pricing">Pricing</Link>
               </Button>
             </CardContent>
           </Card>

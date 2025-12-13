@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useExtensionBridge } from "@/hooks/use-extension-bridge"
 import { useControlPlaneConfig } from "@/hooks/use-control-plane-config"
-import type { AgentMode, ControlPlaneConfig } from "@/lib/control-plane-types"
+import type { AgentMode } from "@/lib/control-plane-types"
 
 const modes: { mode: AgentMode; title: string; description: string }[] = [
   { mode: "observe", title: "Observe", description: "Read-only. No actions." },

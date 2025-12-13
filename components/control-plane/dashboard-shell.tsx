@@ -29,7 +29,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               className="glass-subtle rounded-2xl p-2 border border-border/40 hover:border-border/70 transition-colors"
               aria-label="Glazyr home"
             >
-              <Image src="/glazyr-logo.png" alt="Glazyr logo" width={40} height={40} priority className="rounded-xl" />
+              <Image src="/icon.svg" alt="Glazyr eye mark" width={40} height={40} priority className="rounded-xl" />
             </Link>
             <div>
               <p className="text-sm text-muted-foreground">Glazyr</p>

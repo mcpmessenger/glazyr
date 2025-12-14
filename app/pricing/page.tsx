@@ -35,7 +35,7 @@ const tiers = [
 
 export default function PricingPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <main className="min-h-screen glazyr-backlight bg-gradient-to-br from-background via-background to-primary/5">
       <div className="container mx-auto px-4 py-10 max-w-6xl">
         <SiteHeader />
 

@@ -164,3 +164,23 @@ This web app intentionally remains “mission control” (config + monitoring), 
 - The web control plane **never executes actions**.
 - The web control plane **does not display** screenshots, internal traces, or model reasoning.
 - Enforcement lives outside the UI: **runtime + extension**.
+
+## References
+
+### Website & Services
+
+- **Glazyr Website**: [https://glazyr.com/](https://glazyr.com/)
+- **LangChain MCP Runtime** (default service): [https://langchain-agent-mcp-server-554655392699.us-central1.run.app/](https://langchain-agent-mcp-server-554655392699.us-central1.run.app/)
+
+### GitHub Repositories
+
+- **glazyr** (this repo - web control plane): [https://github.com/mcpmessenger/glazyr](https://github.com/mcpmessenger/glazyr)
+- **glazyr-control** (MCP runtime): [https://github.com/mcpmessenger/glazyr-control](https://github.com/mcpmessenger/glazyr-control)
+- **glazyr-chrome-extension**: [https://github.com/mcpmessenger/glazyr-chrome-extension](https://github.com/mcpmessenger/glazyr-chrome-extension)
+- **LangchainMCP**: [https://github.com/mcpmessenger/LangchainMCP](https://github.com/mcpmessenger/LangchainMCP)
+
+### Demos & Documentation
+
+- **ChatGPT Demo**: [https://chatgpt.com/share/693e4404-0f74-800d-989c-b5857c2494da](https://chatgpt.com/share/693e4404-0f74-800d-989c-b5857c2494da)
+- **YouTube Demo**: [https://youtu.be/mb7rNFjLTD8?si=dEUo19YMi1C7TmGP](https://youtu.be/mb7rNFjLTD8?si=dEUo19YMi1C7TmGP)
+- **NotebookLM**: [https://notebooklm.google.com/notebook/2c41f985-c9aa-4dd5-adbd-15b62f2cc15e](https://notebooklm.google.com/notebook/2c41f985-c9aa-4dd5-adbd-15b62f2cc15e)

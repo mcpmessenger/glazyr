@@ -25,15 +25,70 @@ If it feels interactive like a cockpit, it’s probably wrong.
 
 - **Control plane (this app)**: config + monitoring
 - **Extension (`../glazyr-extension/`)**: local execution + local policy enforcement
-- **Runtime (`../runtime-aws/`)**: orchestration backend (task state + action queue)
+- **MCP runtime (`glazyr-control`)**: MCP tools + task orchestration (LangChain Assistant MCP runtime)
+- **Vision runtime (`../runtime-aws/`)**: vision-first pipeline (OCR/vision endpoints; receives derived text, not raw UI by default)
 
 ![Glazyr architecture](assets/architecture.png)
+
+### Control plane ↔ MCP runtime wiring (proxy routes)
+
+The control plane talks to `glazyr-control` **server-side** via proxy routes (microservice-friendly, keeps keys off the client).
+
+**Required server environment variables (Next.js server runtime only):**
+
+- `GLAZYR_CONTROL_RUNTIME_URL`: base URL of the hosted `glazyr-control` service (no trailing slash)
+- `GLAZYR_CONTROL_RUNTIME_API_KEY` (optional): upstream key if `glazyr-control` auth is enabled
+
+**Proxy API routes (implemented in `app/api/runtime/**`):**
+
+- `GET /api/runtime/mcp/manifest` → `{RUNTIME}/mcp/manifest`
+- `POST /api/runtime/mcp/invoke` → `{RUNTIME}/mcp/invoke`
+- `GET /api/runtime/tasks?limit=` → `{RUNTIME}/api/tasks`
+- `GET /api/runtime/tasks/[taskId]` → `{RUNTIME}/api/tasks/{task_id}`
+
+**Client helper:**
+
+- `lib/api/runtime.ts` (calls `GLAZYR_API_ROUTES.runtimeTasks`, etc.)
+
+### Flow chart (control module)
+
+```mermaid
+flowchart LR
+  subgraph CP[glazyr-main (Control Plane)]
+    UI[Dashboard UI]
+    Proxy[Next.js API proxy<br/>/api/runtime/**]
+  end
+
+  subgraph EXT[glazyr-extension]
+    Widget[Extension widget]
+  end
+
+  subgraph MCP[glazyr-control (MCP runtime)]
+    MCPManifest[GET /mcp/manifest]
+    MCPInvoke[POST /mcp/invoke]
+    Tasks[GET /api/tasks<br/>GET /api/tasks/:id]
+  end
+
+  subgraph VISION[runtime-aws (vision)]
+    Vision[POST /runtime/vision/analyze]
+  end
+
+  UI --> Proxy --> MCP
+  Widget --> MCP
+  Widget --> Vision
+  Vision -. derived text .-> MCP
+```
 
 ## Product shape (routes)
 
 - **Public**
   - `/` Home
+  - `/about`
+  - `/docs`
   - `/how-it-works`
+  - `/status`
+  - `/market`
+  - `/investors`
   - `/privacy-security`
   - `/privacy-policy` (Chrome extension privacy policy URL)
   - `/install-extension`
@@ -42,7 +97,7 @@ If it feels interactive like a cockpit, it’s probably wrong.
   - `/dashboard` Overview (mode, extension status, last task summary, **emergency stop**)
   - `/dashboard/agent-modes`
   - `/dashboard/safety-permissions` (**critical**)
-  - `/dashboard/task-history` (summaries only)
+  - `/dashboard/task-history` (summaries only + runtime task list via `/api/runtime/tasks`)
   - `/dashboard/extension-status`
   - `/dashboard/account`
 
@@ -91,6 +146,7 @@ npm run start
 - **Auth**: dev cookie session endpoints at `/api/auth/*`
 - **Config**: `/api/control-plane/config`
 - **Task summaries**: `/api/tasks` (summaries only)
+- **MCP runtime monitoring**: `/api/runtime/tasks` (proxy to `glazyr-control`)
 - **Extension status**: `/api/extension/status` (heartbeat/permissions + enforcement signals like `policyEnforced`, `killSwitchEngaged`, etc.)
 - **Emergency stop**: `/api/killswitch`
 

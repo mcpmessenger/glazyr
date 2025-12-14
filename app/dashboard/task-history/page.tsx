@@ -3,9 +3,11 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTaskSummaries } from "@/hooks/use-task-summaries"
+import { listRuntimeTasks, type RuntimeTaskSummary } from "@/lib/api/runtime"
 import { createTaskSummary } from "@/lib/api/tasks"
 import type { TaskOutcome } from "@/lib/control-plane-types"
 import { format, startOfDay, subDays } from "date-fns"
+import { useEffect, useMemo, useState } from "react"
 import {
   Bar,
   BarChart,
@@ -35,6 +37,26 @@ function badge(outcome: TaskOutcome) {
 
 export default function TaskHistoryPage() {
   const { tasks, loading, refresh, clear } = useTaskSummaries()
+  const [runtimeTasks, setRuntimeTasks] = useState<RuntimeTaskSummary[]>([])
+  const [runtimeLoading, setRuntimeLoading] = useState(true)
+  const [runtimeError, setRuntimeError] = useState<string | null>(null)
+
+  async function refreshRuntime() {
+    setRuntimeLoading(true)
+    try {
+      const res = await listRuntimeTasks(25)
+      setRuntimeTasks(res.tasks)
+      setRuntimeError(null)
+    } catch (e: any) {
+      setRuntimeError(e?.message ?? "Failed to load runtime tasks")
+    } finally {
+      setRuntimeLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void refreshRuntime()
+  }, [])
 
   const daily = (() => {
     const days = 14
@@ -63,6 +85,10 @@ export default function TaskHistoryPage() {
     }
     return out
   })()
+
+  const runtimeSorted = useMemo(() => {
+    return runtimeTasks.slice().sort((a, b) => (b.updated_at_ms || 0) - (a.updated_at_ms || 0))
+  }, [runtimeTasks])
 
   return (
     <div className="space-y-6">
@@ -142,6 +168,60 @@ export default function TaskHistoryPage() {
               </div>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card className="glass">
+        <CardHeader>
+          <CardTitle>Runtime (glazyr-control)</CardTitle>
+          <CardDescription>
+            Live task summaries from the orchestration runtime via <code className="px-1 py-0.5 rounded bg-background/30">/api/runtime/tasks</code>.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {runtimeLoading ? (
+            <div className="text-sm text-muted-foreground">…</div>
+          ) : runtimeError ? (
+            <div className="text-sm text-destructive">{runtimeError}</div>
+          ) : runtimeSorted.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No runtime tasks yet.</div>
+          ) : (
+            runtimeSorted.map((t) => (
+              <div key={t.task_id} className="glass-subtle rounded-lg p-4 border border-border/30">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-medium text-foreground truncate">{t.task_id}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{formatTime(t.updated_at_ms)}</div>
+                  </div>
+                  <span className="shrink-0 text-xs rounded-full px-2 py-1 bg-muted text-muted-foreground">{t.status}</span>
+                </div>
+                <div className="mt-3 text-sm text-foreground/90 leading-relaxed space-y-2">
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Input</div>
+                    <div className="whitespace-pre-wrap break-words">{t.input_preview}</div>
+                  </div>
+                  {t.output_preview ? (
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">Output</div>
+                      <div className="whitespace-pre-wrap break-words">{t.output_preview}</div>
+                    </div>
+                  ) : null}
+                  {t.error ? (
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-1">Error</div>
+                      <div className="whitespace-pre-wrap break-words text-destructive">{t.error}</div>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ))
+          )}
+
+          <div className="pt-2 flex flex-col sm:flex-row gap-3">
+            <Button variant="outline" className="bg-transparent" onClick={() => void refreshRuntime()} disabled={runtimeLoading}>
+              Refresh runtime
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

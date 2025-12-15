@@ -182,7 +182,17 @@ export default function TaskHistoryPage() {
           {runtimeLoading ? (
             <div className="text-sm text-muted-foreground">…</div>
           ) : runtimeError ? (
-            <div className="text-sm text-destructive">{runtimeError}</div>
+            <div className="space-y-2">
+              <div className="text-sm text-destructive font-medium">Runtime unavailable</div>
+              <div className="text-xs text-muted-foreground">
+                {runtimeError.includes("Missing") || runtimeError.includes("503")
+                  ? "Set GLAZYR_CONTROL_RUNTIME_URL environment variable to enable runtime task monitoring."
+                  : runtimeError}
+              </div>
+              <Button variant="outline" size="sm" onClick={refreshRuntime} disabled={runtimeLoading} className="mt-2">
+                Refresh runtime
+              </Button>
+            </div>
           ) : runtimeSorted.length === 0 ? (
             <div className="text-sm text-muted-foreground">No runtime tasks yet.</div>
           ) : (

@@ -4,7 +4,7 @@ export default function Loading() {
   return (
     <div className="fixed inset-0 z-50 bg-background">
       <video
-        className="absolute inset-0 h-full w-full object-cover opacity-80"
+        className="absolute inset-0 h-full w-full object-contain sm:object-cover opacity-80"
         autoPlay
         muted
         loop

@@ -34,9 +34,6 @@ export default function Home() {
               <Button asChild className="w-full sm:w-auto">
                 <Link href="/dashboard">Launch Dashboard</Link>
               </Button>
-              <Button asChild variant="secondary" className="w-full sm:w-auto">
-                <Link href="/investors">Investor Deck</Link>
-              </Button>
               <Button asChild variant="outline" className="w-full sm:w-auto bg-transparent">
                 <Link href="/install-extension">Install Extension</Link>
               </Button>
@@ -47,46 +44,22 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <Card className="glass">
-              <CardHeader>
-                <CardTitle>For operators</CardTitle>
-                <CardDescription>Configure constraints. Monitor outcomes. Keep humans in the loop.</CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Agent modes, budgets, allowlisted domains</li>
-                  <li>Task summaries and enforcement signals</li>
-                  <li>Emergency stop and policy broadcast</li>
-                </ul>
-                <Button asChild variant="outline" className="w-full bg-transparent">
-                  <Link href="/how-it-works">How it works</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="glass">
-              <CardHeader>
-                <CardTitle>For investors</CardTitle>
-                <CardDescription>Safety-first automation is a governance market, not a UI gimmick.</CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="glass-subtle rounded-xl border border-border/40 p-3">
-                    <div className="text-xs text-muted-foreground">TAM signal</div>
-                    <div className="text-lg font-semibold text-foreground">$16.7B+</div>
-                  </div>
-                  <div className="glass-subtle rounded-xl border border-border/40 p-3">
-                    <div className="text-xs text-muted-foreground">Positioning</div>
-                    <div className="text-lg font-semibold text-foreground">MCP-native</div>
-                  </div>
-                </div>
-                <Button asChild variant="outline" className="w-full bg-transparent">
-                  <Link href="/market">Market overview</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="glass">
+            <CardHeader>
+              <CardTitle>For operators</CardTitle>
+              <CardDescription>Configure constraints. Monitor outcomes. Keep humans in the loop.</CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground space-y-2">
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Agent modes, budgets, allowlisted domains</li>
+                <li>Task summaries and enforcement signals</li>
+                <li>Emergency stop and policy broadcast</li>
+              </ul>
+              <Button asChild variant="outline" className="w-full bg-transparent">
+                <Link href="/how-it-works">How it works</Link>
+              </Button>
+            </CardContent>
+          </Card>
         </section>
 
         <section className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -181,7 +154,7 @@ export default function Home() {
               <Link href="/login">Get started free</Link>
             </Button>
             <Button asChild variant="outline" className="w-full sm:w-auto bg-transparent">
-              <Link href="/investors">Schedule a demo</Link>
+              <Link href="/about">Learn more</Link>
             </Button>
           </div>
         </footer>

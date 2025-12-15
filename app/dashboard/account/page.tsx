@@ -20,7 +20,7 @@ export default function AccountPage() {
       <Card className="glass">
         <CardHeader>
           <CardTitle>Signed in</CardTitle>
-          <CardDescription>UI-only placeholder for now.</CardDescription>
+          <CardDescription>Account information and settings.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-sm">
@@ -43,7 +43,7 @@ export default function AccountPage() {
               Sign out
             </Button>
             <Button asChild variant="ghost">
-              <Link href="/privacy-security">Privacy & security</Link>
+              <Link href="/privacy-policy">Privacy policy</Link>
             </Button>
           </div>
         </CardContent>

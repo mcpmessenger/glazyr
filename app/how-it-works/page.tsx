@@ -55,7 +55,7 @@ export default function HowItWorksPage() {
                 <Link href="/install-extension">Install Extension</Link>
               </Button>
               <Button asChild variant="outline" className="w-full sm:w-auto bg-transparent">
-                <Link href="/pricing">View pricing</Link>
+                <Link href="/dashboard">Go to dashboard</Link>
               </Button>
             </div>
           </CardContent>

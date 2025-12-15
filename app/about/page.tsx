@@ -29,7 +29,7 @@ export default function AboutPage() {
                 <Link href="/how-it-works">How it works</Link>
               </Button>
               <Button asChild variant="outline" className="w-full sm:w-auto bg-transparent">
-                <Link href="/pricing">Pricing</Link>
+                <Link href="/install-extension">Install extension</Link>
               </Button>
             </div>
           </CardContent>

@@ -15,11 +15,8 @@ const operatorNav: NavItem[] = [
   { href: "/status", label: "Status" },
 ]
 
-const investorNav: NavItem[] = [
+const infoNav: NavItem[] = [
   { href: "/about", label: "About" },
-  { href: "/market", label: "Market" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/investors", label: "Investors" },
 ]
 
 function isActive(pathname: string, href: string) {
@@ -68,21 +65,24 @@ export function SiteHeader() {
             ))}
           </div>
 
-          <div className="h-6 w-px bg-border/70 mx-1" />
-
-          <div className="flex flex-wrap items-center gap-2">
-            {investorNav.map((item) => (
-              <Button
-                key={item.href}
-                asChild
-                size="sm"
-                variant={isActive(pathname, item.href) ? "secondary" : "ghost"}
-                className={cn(isActive(pathname, item.href) ? "" : "text-muted-foreground")}
-              >
-                <Link href={item.href}>{item.label}</Link>
-              </Button>
-            ))}
-          </div>
+          {infoNav.length > 0 && (
+            <>
+              <div className="h-6 w-px bg-border/70 mx-1" />
+              <div className="flex flex-wrap items-center gap-2">
+                {infoNav.map((item) => (
+                  <Button
+                    key={item.href}
+                    asChild
+                    size="sm"
+                    variant={isActive(pathname, item.href) ? "secondary" : "ghost"}
+                    className={cn(isActive(pathname, item.href) ? "" : "text-muted-foreground")}
+                  >
+                    <Link href={item.href}>{item.label}</Link>
+                  </Button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </header>

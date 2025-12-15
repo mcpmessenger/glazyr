@@ -9,6 +9,7 @@ const montserrat = Montserrat({
   subsets: ["latin"],
   variable: "--font-montserrat",
   display: "swap",
+  fallback: ["system-ui", "arial"],
 })
 
 export const metadata: Metadata = {
@@ -36,8 +37,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${montserrat.variable} font-sans antialiased glazyr-backlight min-h-screen`}>
+    <html lang="en" suppressHydrationWarning className={montserrat.variable}>
+      <body className="font-sans antialiased glazyr-backlight min-h-screen">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
           <Analytics />

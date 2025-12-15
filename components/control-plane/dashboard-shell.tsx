@@ -12,7 +12,6 @@ const nav = [
   { href: "/dashboard/agent-modes", label: "Agent modes" },
   { href: "/dashboard/safety-permissions", label: "Safety & permissions" },
   { href: "/dashboard/task-history", label: "Task history" },
-  { href: "/dashboard/observability", label: "Observability" },
   { href: "/dashboard/extension-status", label: "Extension status" },
   { href: "/dashboard/account", label: "Account" },
 ]

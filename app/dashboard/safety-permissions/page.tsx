@@ -101,7 +101,7 @@ export default function SafetyPermissionsPage() {
                 setDomainsTouched(true)
                 setDomainsDraft(e.target.value)
               }}
-              placeholder={!loading ? "example.com\napp.company.com" : "…"}
+              placeholder={loading ? "…" : ""}
             />
             {!domainsValid ? (
               <div className="text-xs text-destructive">
@@ -153,7 +153,7 @@ export default function SafetyPermissionsPage() {
                 setActionsTouched(true)
                 setDisallowedDraft(e.target.value)
               }}
-              placeholder={!loading ? "purchase\ntransfer_money\ndelete_data\nchange_security_settings" : "…"}
+              placeholder={loading ? "…" : ""}
             />
             {!actionsValid ? (
               <div className="text-xs text-destructive">

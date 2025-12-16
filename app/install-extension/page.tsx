@@ -22,14 +22,16 @@ export default function InstallExtensionPage() {
               and reports status back to the control plane.
             </p>
             <ol className="list-decimal pl-5 space-y-2">
-              <li>Open your browser’s extension manager.</li>
-              <li>Install / load the Glazyr extension.</li>
-              <li>Grant required permissions.</li>
-              <li>Go to <span className="text-foreground font-medium">Dashboard → Extension status</span>.</li>
+              <li>Click the button below to open the Chrome Web Store.</li>
+              <li>Click "Add to Chrome" to install the Glazyr extension.</li>
+              <li>Grant required permissions when prompted.</li>
+              <li>Go to <span className="text-foreground font-medium">Dashboard → Extension status</span> to confirm connection.</li>
             </ol>
             <div className="pt-2 flex flex-col sm:flex-row gap-3">
-              <Button asChild>
-                <Link href="/login">Sign in</Link>
+              <Button asChild size="lg" className="w-full sm:w-auto">
+                <Link href="https://chromewebstore.google.com/detail/gikplhegdelcmbflmnjnecfkmfpiiddc" target="_blank" rel="noopener noreferrer">
+                  Install from Chrome Web Store
+                </Link>
               </Button>
               <Button asChild variant="outline" className="bg-transparent">
                 <Link href="/dashboard/extension-status">Extension status</Link>
@@ -44,4 +46,3 @@ export default function InstallExtensionPage() {
     </main>
   )
 }
-

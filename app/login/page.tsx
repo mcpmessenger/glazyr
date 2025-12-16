@@ -95,9 +95,6 @@ export default function LoginPage() {
                   Continue as guest
                 </Button>
                 {error ? <p className="text-xs text-destructive">{error}</p> : null}
-                <p className="text-xs text-muted-foreground">
-                  This is a frontend-only placeholder. Wire to your auth service later.
-                </p>
               </form>
             )}
           </CardContent>

@@ -211,16 +211,9 @@ export default function ObservabilityPage() {
       {error ? (
         <Card className="glass border-border/50">
           <CardContent className="pt-6">
-            <div className="text-sm space-y-2">
+            <div className="text-sm">
               <div className="font-medium text-foreground">Metrics unavailable</div>
-              <div className="text-muted-foreground">
-                {error.includes("503") || error.includes("Missing")
-                  ? "Set GLAZYR_CONTROL_RUNTIME_URL environment variable to enable metrics. Charts will appear once configured."
-                  : error}
-              </div>
-              <div className="text-xs text-muted-foreground mt-2">
-                This page displays live Prometheus metrics from the runtime. Configure the runtime URL to see charts.
-              </div>
+              <div className="text-muted-foreground mt-1">{error}</div>
             </div>
           </CardContent>
         </Card>

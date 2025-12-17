@@ -208,11 +208,6 @@ export default function Home() {
                   ⭐ Star on GitHub
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="bg-transparent">
-                <Link href="https://discord.com" target="_blank" rel="noopener noreferrer">
-                  💬 Join Discord
-                </Link>
-              </Button>
             </div>
           </div>
         </section>
@@ -311,11 +306,6 @@ export default function Home() {
                 <Button asChild size="sm" variant="ghost">
                   <Link href="https://github.com/mcpmessenger/glazyr" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                     GitHub
-                  </Link>
-                </Button>
-                <Button asChild size="sm" variant="ghost">
-                  <Link href="https://discord.com" target="_blank" rel="noopener noreferrer" aria-label="Discord">
-                    Discord
                   </Link>
                 </Button>
                 <Button asChild size="sm" variant="ghost">

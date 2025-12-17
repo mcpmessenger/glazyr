@@ -40,7 +40,7 @@ export default function Home() {
               </Link>
             </Button>
             <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto text-base px-8 py-6">
-              <Link href="https://github.com" target="_blank" rel="noopener noreferrer">
+              <Link href="https://github.com/mcpmessenger/glazyr" target="_blank" rel="noopener noreferrer">
                 View on GitHub
               </Link>
             </Button>
@@ -204,7 +204,7 @@ export default function Home() {
             </div>
             <div className="flex flex-wrap gap-3 justify-center">
               <Button asChild variant="outline" className="bg-transparent">
-                <Link href="https://github.com" target="_blank" rel="noopener noreferrer">
+                <Link href="https://github.com/mcpmessenger/glazyr" target="_blank" rel="noopener noreferrer">
                   ⭐ Star on GitHub
                 </Link>
               </Button>
@@ -309,7 +309,7 @@ export default function Home() {
               </div>
               <div className="flex gap-2">
                 <Button asChild size="sm" variant="ghost">
-                  <Link href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                  <Link href="https://github.com/mcpmessenger/glazyr" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                     GitHub
                   </Link>
                 </Button>

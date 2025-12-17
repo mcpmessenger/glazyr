@@ -170,6 +170,7 @@ This web app intentionally remains “mission control” (config + monitoring), 
 ### Website & Services
 
 - **Glazyr Website**: [https://glazyr.com/](https://glazyr.com/)
+- **Chrome Extension**: [Install from Chrome Web Store](https://chromewebstore.google.com/detail/gikplhegdelcmbflmnjnecfkmfpiiddc)
 - **LangChain MCP Runtime** (default service): [https://langchain-agent-mcp-server-554655392699.us-central1.run.app/](https://langchain-agent-mcp-server-554655392699.us-central1.run.app/)
 
 ### GitHub Repositories

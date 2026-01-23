@@ -153,6 +153,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -171,19 +172,13 @@
     inset: -20%;
     z-index: -1;
     pointer-events: none;
-    background:
-      radial-gradient(700px 420px at 18% 22%, oklch(0.82 0.16 55 / 0.35), transparent 62%),
-      radial-gradient(900px 520px at 78% 68%, oklch(0.8 0.17 35 / 0.25), transparent 66%),
-      radial-gradient(520px 320px at 55% 8%, oklch(0.86 0.12 75 / 0.18), transparent 58%);
+    background: transparent;
     filter: blur(26px);
     opacity: 0.95;
   }
 
   .dark .glazyr-backlight::before {
-    background:
-      radial-gradient(760px 460px at 18% 22%, oklch(0.75 0.18 55 / 0.28), transparent 64%),
-      radial-gradient(980px 560px at 78% 68%, oklch(0.72 0.2 35 / 0.22), transparent 68%),
-      radial-gradient(520px 320px at 55% 8%, oklch(0.82 0.14 75 / 0.16), transparent 60%);
+    background: transparent;
     opacity: 1;
   }
 
